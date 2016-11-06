@@ -1,14 +1,14 @@
 package game;
 
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.Iterator;
 
@@ -16,39 +16,36 @@ public class MainGame implements Screen {
     final BlueSky myGame;
 
     private OrthographicCamera camera;
-    private Texture idleStanceImage1;
-    private Texture backgroundImage;
-    private Texture dropletImage;
-    private Music backgroundMusic;
+    Viewport viewport;
     private Rectangle player;
     private Array<Rectangle> raindrops;
     private long lastDropTime;
 
     public void movePlayerRight(int button, int altButton) {
         if (Gdx.input.isKeyPressed(button) || Gdx.input.isKeyPressed(altButton)) {
-            player.x += 300 * Gdx.graphics.getDeltaTime();
+            player.x += 100 * Gdx.graphics.getDeltaTime();
             playerBoundaries();
         }
     }
 
     public void movePlayerLeft(int button, int altButton) {
         if (Gdx.input.isKeyPressed(button) || Gdx.input.isKeyPressed(altButton)) {
-            player.x -= 300 * Gdx.graphics.getDeltaTime();
+            player.x -= 100 * Gdx.graphics.getDeltaTime();
             playerBoundaries();
         }
     }
 
     public void playerBoundaries(){
         if(player.x < 0) player.x = 0;
-        if(player.x > Gdx.graphics.getWidth() - player.getWidth()) {
-            player.x = Gdx.graphics.getWidth() - player.getWidth();
+        if(player.x > myGame.GAME_WIDTH - player.getWidth()) {
+            player.x = myGame.GAME_WIDTH - player.getWidth();
         }
     }
 
     public void makeItRain(){
         Rectangle raindrop = new Rectangle();
-        raindrop.x = MathUtils.random(0, Gdx.graphics.getWidth() - 7);
-        raindrop.y = Gdx.graphics.getHeight();
+        raindrop.x = MathUtils.random(0, myGame.GAME_WIDTH - 7);
+        raindrop.y = myGame.GAME_HEIGHT;
         raindrop.width = 7;
         raindrop.height = 11;
         raindrops.add(raindrop);
@@ -58,27 +55,25 @@ public class MainGame implements Screen {
     public MainGame(final BlueSky g) {
         myGame = g;
 
-        backgroundImage = new Texture(Gdx.files.internal("backdrop.png"));
-        backgroundImage.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+        float gw = myGame.GAME_WIDTH;
+        float gh = myGame.GAME_HEIGHT;
 
-        dropletImage = new Texture(Gdx.files.internal("rain.png"));
+        camera = new OrthographicCamera();
+        viewport = new FitViewport(gw, gh, camera);
+        //camera.setToOrtho(false, gw, gh);
 
-        idleStanceImage1 = new Texture(Gdx.files.internal("stance1_1.png"));
+//        camera.position.set(gw, gh,0);
+        viewport.apply();
 
-        backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("undertreeinrain.mp3"));
-
-        // Loop the background music from beginning
-        backgroundMusic.setLooping(true);
-
-        camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        camera.position.set(camera.viewportWidth/2, camera.viewportHeight/2,0);
+        //camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         // Creating player
         player = new Rectangle();
-        player.y = 20;
-        player.x = 100;
-        player.height = 184;
-        player.width = 72;
+        player.y = player.height + gh / 20;
+        player.x = gw/2;
+        player.height = gh/10;
+        player.width = gw/8;
 
         // Create rain
         raindrops = new Array<Rectangle>();
@@ -88,19 +83,19 @@ public class MainGame implements Screen {
     @Override
     public void render(float delta) {
         // Clear the screen and set background color
-        Gdx.gl.glClearColor(1, 1, 1, 0);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         // Spawn a raindrop every 0.01 second
-        if (TimeUtils.nanoTime() - lastDropTime > 10000000) {
+        if (TimeUtils.nanoTime() - lastDropTime > 1000000000) {
             makeItRain();
         }
 
-        // Make raindrop move 800px per second
+        // Make raindrop move 80px per second
         Iterator<Rectangle> iter = raindrops.iterator();
         while(iter.hasNext()) {
             Rectangle raindrop = iter.next();
-            raindrop.y -= 800 * Gdx.graphics.getDeltaTime();
+            raindrop.y -= 80 * Gdx.graphics.getDeltaTime();
             if(raindrop.y + 11 < 0) iter.remove();
         }
 
@@ -111,10 +106,10 @@ public class MainGame implements Screen {
         myGame.batch.setProjectionMatrix(camera.combined);
 
         myGame.batch.begin();
-        myGame.batch.draw(backgroundImage, 0, 0 , Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        myGame.batch.draw(idleStanceImage1, player.getX(), player.getY(), player.getWidth(), player.getHeight());
+        myGame.batch.draw(Assets.backgroundImage, 0, 0 , myGame.GAME_WIDTH, myGame.GAME_HEIGHT);
+        myGame.batch.draw(Assets.idleStanceImage1, player.getX(), player.getY(), player.getWidth(), player.getHeight());
         for(Rectangle raindrop: raindrops) {
-            myGame.batch.draw(dropletImage, raindrop.x, raindrop.y);
+            myGame.batch.draw(Assets.dropletImage, raindrop.x, raindrop.y);
         }
         myGame.batch.end();
 
@@ -142,12 +137,13 @@ public class MainGame implements Screen {
 
     @Override
     public void show() {
-        backgroundMusic.play();
+        Assets.backgroundMusic.play();
     }
 
     @Override
     public void resize(int width, int height) {
-
+        viewport.update(width, height);
+        camera.position.set(camera.viewportWidth/2, camera.viewportHeight/2,0);
     }
 
     @Override
@@ -168,9 +164,6 @@ public class MainGame implements Screen {
     @Override
     public void dispose() {
         myGame.batch.dispose();
-        idleStanceImage1.dispose();
-        backgroundImage.dispose();
-        backgroundMusic.dispose();
-        dropletImage.dispose();
+        Assets.dispose();
     }
 }

@@ -9,8 +9,8 @@ public class DesktopLauncher {
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
         config.fullscreen = true;
         config.title = "Blue Sky";
-        config.width = 1920;
-        config.height = 1080;
+        config.width = 1280;
+        config.height = 768;
         new LwjglApplication(new BlueSky(), config);
     }
 }
