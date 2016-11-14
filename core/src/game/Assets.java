@@ -10,8 +10,9 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
  */
 public class Assets {
     public static Texture backgroundImage;
-    public static Texture idleStanceImage1;
+    public static Texture playerImage;
     public static Texture dropletImage;
+    public static Texture fireBallImage;
     public static Music backgroundMusic;
 
     // Default Arial font
@@ -26,9 +27,10 @@ public class Assets {
     }
 
     public static void load(){
-        backgroundImage = loadTextures("backdrop.gif");
-        idleStanceImage1 = loadTextures("stance1_1.png");
+        backgroundImage = loadTextures("background.png");
+        playerImage = loadTextures("plane.png");
         dropletImage = loadTextures("rain.png");
+        fireBallImage = loadTextures("fireball.png");
         backgroundMusic = loadMusic("undertreeinrain.mp3");
         font = new BitmapFont();//Gdx.files.internal("3Dventure.ttf"));
         //font.getData().setScale(0.35f);//0.75f / (Gdx.graphics.getWidth()/Gdx.graphics.getHeight()), 0.75f / (Gdx.graphics.getHeight()/Gdx.graphics.getWidth()));
@@ -43,7 +45,8 @@ public class Assets {
 
     public static void dispose(){
         backgroundImage.dispose();
-        idleStanceImage1.dispose();
+        playerImage.dispose();
+        fireBallImage.dispose();
         dropletImage.dispose();
         backgroundMusic.dispose();
     }

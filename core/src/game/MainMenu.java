@@ -55,8 +55,8 @@ public class MainMenu implements Screen {
 
         myGame.batch.draw(Assets.backgroundImage, 0, 0 , myGame.GAME_WIDTH, myGame.GAME_HEIGHT);
         // Create game text with default font
-        Assets.font.draw(myGame.batch, "Project BlueSky", myGame.GAME_WIDTH/20, myGame.GAME_HEIGHT/2);
-        Assets.font.draw(myGame.batch, "Press Enter to begin!", myGame.GAME_WIDTH/20, myGame.GAME_HEIGHT/2 - 10);
+        Assets.font.draw(myGame.batch, "Project BlueSky", 15, 150);
+        Assets.font.draw(myGame.batch, "Press ENTER to begin!", 2, 130);
         myGame.batch.end();
 
         // When user presses any key, game will start
