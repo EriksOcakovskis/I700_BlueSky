@@ -15,9 +15,11 @@ public class MainMenu implements Screen {
     final BlueSky myGame;
     OrthographicCamera camera;
     Viewport viewport;
+    public SimpleLogger myLog = SimpleLogger.getLogger();
 
 
     public MainMenu(final BlueSky g) {
+        myLog.debug("Checking...");
         myGame = g;
 
         // Assign screen resolution for easy access

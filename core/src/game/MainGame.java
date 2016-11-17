@@ -4,7 +4,6 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -19,7 +18,7 @@ public class MainGame implements Screen {
     private Viewport viewport;
     private Player player;
     private Array<FireBall> fireBalls;
-    private long lastSpawnTime;
+    private long lastFireBallSpawnTime;
     private long startTime;
 
     public MainGame(final BlueSky g) {
@@ -120,13 +119,15 @@ public class MainGame implements Screen {
     }
 
     private void updateFireballs(){
-        // Spawn a raindrop every 1 second
-        if (TimeUtils.nanoTime() - lastSpawnTime > 500000000) {
+        if (TimeUtils.nanoTime() - lastFireBallSpawnTime > 500000000) {
+            for (FireBall fB:fireBalls) {
+                fB.hitBox.getX();
+            }
             int x = (int)MathUtils.random(0, myGame.GAME_WIDTH - 16);
             int y = (int)myGame.GAME_HEIGHT;
             FireBall fireBall = new FireBall(x, y);
             fireBalls.add(fireBall);
-            lastSpawnTime = TimeUtils.nanoTime();
+            lastFireBallSpawnTime = TimeUtils.nanoTime();
         }
 
         Iterator<FireBall> iter = fireBalls.iterator();
@@ -153,7 +154,7 @@ public class MainGame implements Screen {
         int y = (int)myGame.GAME_HEIGHT;
         FireBall fireBall = new FireBall(x, y);
         fireBalls.add(fireBall);
-        lastSpawnTime = TimeUtils.nanoTime();
+        lastFireBallSpawnTime = TimeUtils.nanoTime();
     }
 
     public boolean collisionDetection(FireBall fireBall){

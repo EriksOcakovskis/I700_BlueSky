@@ -11,9 +11,14 @@ public class BlueSky extends Game {
     public final static float GAME_HEIGHT = 640;
     SpriteBatch batch;
 
+    public SimpleLogger myLog = SimpleLogger.getLogger();
+
     public void create(){
         batch = new SpriteBatch();
         Assets.load();
+        myLog.setLogFile("BlueSky");
+        myLog.setLogLevel(myLog.DEBUG);
+        myLog.debug("Starting...");
         this.setScreen(new MainMenu(this));
     }
 
