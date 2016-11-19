@@ -37,7 +37,9 @@ class MainGame implements Screen {
 
         camera.position.set(camera.viewportWidth/2, camera.viewportHeight/2,0);
 
-        player = new Player(((int)(gw/2)), (Player.height));
+        player = new Player(((int)(gw/2)), (Player.textureHeight / 2));
+        myLog.debug("Player hit box x location: " + player.hitBox.x );
+        myLog.debug("Player hit box y location: " + player.hitBox.y );
 
         fireBalls = new Array<FireBall>();
 
@@ -46,46 +48,10 @@ class MainGame implements Screen {
 
     @Override
     public void render(float delta) {
-        // Clear the screen and set background color
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
         updateFireballs();
         player.update(delta);
-
-        // Update camera once per frame
-        camera.update();
-
-        // Tell batch to use coordinate system of camera
-        myGame.batch.setProjectionMatrix(camera.combined);
-
-        myGame.batch.begin();
-        myGame.batch.draw(Assets.backgroundImage, 0, 0 , gw, gh);
-        myGame.batch.draw(Assets.playerImage, player.hitBox.x, player.hitBox.y, gw/10, gh/20);
-        for(FireBall fireBall: fireBalls) {
-            myGame.batch.draw(Assets.fireBallImage, fireBall.hitBox.getX(), fireBall.hitBox.getY());
-        }
-        Assets.font.draw(myGame.batch, Integer.toString(player.life), 16, gh - 16);
-        myGame.batch.end();
-
-        // Player movement
+        draw();
     }
-//    Structure of code
-
-//    void gameLoop(){
-//        // game logic
-//    }
-//    void inputloop{
-//        // player inpyt
-          // it will go to actor
-//    }
-//    void physicsLoop(){
-//        // rain and such
-//        // moving an object
-//    }
-//    void renderLoop(){
-//        // draw shit
-//    }
 
     @Override
     public void show() {
@@ -127,26 +93,30 @@ class MainGame implements Screen {
                 if (fireBalls != null && fireBalls.size > 1){
                     myLog.debug("second to lase last fireball y: " + fireBalls.get(fireBalls.size - 2).hitBox.getY());
                 }
-                spawnFireBall();
+                spawnFireBall(lastFireball);
             }
         } else {
             spawnFireBall();
         }
 
-
         Iterator<FireBall> iter = fireBalls.iterator();
         while(iter.hasNext()) {
             FireBall fireBall = iter.next();
-            if (collisionDetection(fireBall)){
+            collisionDetection(fireBall);
+            if (fireBall.collided()){
                 fireBall.hitPlayer();
                 player.hitEnemy();
                 iter.remove();
             } else {
                 if (TimeUtils.nanoTime() - startTime > 500000000){
                     startTime = TimeUtils.nanoTime();
-                    if (FireBall.movementSpeed < 400){
-                        FireBall.movementSpeed += 20;
-                        FireBall.spawnHeight -= 5;
+                    if (FireBall.movementSpeed < 600){
+                        FireBall.movementSpeed += 10;
+                        if (FireBall.spawnHeight > 65){
+                            FireBall.spawnHeight -= 5;
+                        }
+                        myLog.debug("Fireball movement speed y: " + FireBall.movementSpeed);
+                        myLog.debug("Distance between Fireballs y: " + FireBall.spawnHeight);
                     }
                 }
             }
@@ -156,19 +126,65 @@ class MainGame implements Screen {
     }
 
 
-    public void spawnFireBall(){
-        int x = (int)MathUtils.random(0, BlueSky.GAME_WIDTH - FireBall.height);
+    private void spawnFireBall(){
+        int x = (int)MathUtils.random(0, BlueSky.GAME_WIDTH - FireBall.width);
         int y = (int)BlueSky.GAME_HEIGHT;
         FireBall fireBall = new FireBall(x, y);
         fireBalls.add(fireBall);
     }
 
-    public boolean collisionDetection(FireBall fireBall){
-        boolean result = false;
-        if (player.hitBox.overlaps(fireBall.hitBox)){
-            result = true;
+    private void spawnFireBall(FireBall lastFireball){
+        int x;
+        int y;
+
+        myLog.debug("last fireball x: " + lastFireball.hitBox.x);
+
+        if (lastFireball.hitBox.x < BlueSky.GAME_WIDTH / 2) {
+            x = (int)MathUtils.random(BlueSky.GAME_WIDTH / 2, BlueSky.GAME_WIDTH - FireBall.textureWidth);
+        } else {
+            x = (int)MathUtils.random(FireBall.textureWidth, BlueSky.GAME_WIDTH / 2);
         }
-        return result;
+
+        myLog.debug("Spawning fireball at x: " + x);
+
+        y = (int)BlueSky.GAME_HEIGHT;
+        FireBall fireBall = new FireBall(x, y);
+        fireBalls.add(fireBall);
+    }
+
+    private void collisionDetection(FireBall fireBall){
+        if (player.hitBox.overlaps(fireBall.hitBox)){
+            fireBall.setCollision(true);
+        }
+    }
+
+    private void draw(){
+        // Clear the screen and set background color
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        camera.update();
+
+        myGame.batch.setProjectionMatrix(camera.combined);
+
+        myGame.batch.begin();
+        myGame.batch.draw(Assets.backgroundImage, 0, 0 , gw, gh);
+
+        float playerBatchX = player.hitBox.x - ((Player.textureWidth - Player.width) / 2);
+        float playerBatchY = player.hitBox.y - ((Player.textureHeight - Player.height) / 2);
+        myGame.batch.draw(
+                Assets.playerImage, playerBatchX, playerBatchY,
+                Player.textureWidth, Player.textureHeight
+        );
+
+        for(FireBall fireBall: fireBalls) {
+            myGame.batch.draw(
+                    Assets.fireBallImage, fireBall.hitBox.x - 2 , fireBall.hitBox.y,
+                    FireBall.textureWidth, FireBall.textureHeight
+            );
+        }
+        Assets.font.draw(myGame.batch, Integer.toString(player.life), 16, gh - 16);
+        myGame.batch.end();
     }
 
 

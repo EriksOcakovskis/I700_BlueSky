@@ -7,13 +7,12 @@ import com.badlogic.gdx.Input;
  * Created by eriks on 13/11/2016.
  */
 class Player extends BasicActor {
-    static final int width = 16;
-    static final int height = 16;
-    private static final int textureWidth = 16;
-    private static final int textureHeight = 16;
-    private static final int movementSpeed = 250;
-
     int life;
+    static final int width = 8;
+    static final int height = 16;
+    static final int textureWidth = 32;
+    static final int textureHeight = 32;
+    private static final int movementSpeed = 300;
 
 
     Player(int x, int y){
@@ -22,13 +21,17 @@ class Player extends BasicActor {
     }
 
     void update(float delta){
-        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)){
+        boolean right = Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D);
+        boolean left = Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A);
+        boolean up = Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W);
+        boolean down = Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S);
+        if(right){
             this.movePlayerRight(delta);
-        } else if(Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
+        } else if(left) {
             this.movePlayerLeft(delta);
-        } else if(Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W)){
+        } else if(up){
             this.movePlayerUp(delta);
-        } else  if(Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)){
+        } else if(down){
             this.movePlayerDown(delta);
         }
     }
@@ -54,14 +57,14 @@ class Player extends BasicActor {
     }
 
     private void playerBoundaries(){
-        if(hitBox.x < 0) {
-            hitBox.x = 0;
-        } else if(hitBox.x > BlueSky.GAME_WIDTH - textureWidth) {
-            hitBox.x = BlueSky.GAME_WIDTH - textureWidth;
-        } else if(hitBox.y < 0){
-            hitBox.y = 0;
-        } else if(hitBox.y > BlueSky.GAME_HEIGHT - textureHeight){
-            hitBox.y = BlueSky.GAME_HEIGHT - textureHeight;
+        if(hitBox.x  - 12 < 0) {
+            hitBox.x = 12;
+        } else if(hitBox.x > BlueSky.GAME_WIDTH - 20) {
+            hitBox.x = BlueSky.GAME_WIDTH - 20;
+        } else if(hitBox.y - 8 < 0){
+            hitBox.y = 8;
+        } else if(hitBox.y > BlueSky.GAME_HEIGHT - 24){
+            hitBox.y = BlueSky.GAME_HEIGHT - 24;
         }
     }
 
