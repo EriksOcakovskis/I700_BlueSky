@@ -3,42 +3,32 @@ package game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
 
 /**
  * Created by eriks on 26/10/2016.
  */
 public class MainMenu implements Screen {
-    final BlueSky myGame;
-    OrthographicCamera camera;
-    Viewport viewport;
-    public SimpleLogger myLog = SimpleLogger.getLogger();
+    private final BlueSky myGame;
+    private OrthographicCamera camera;
+    private Skin skin;
+    private Stage stage;
+
+    private static SimpleLogger myLog = SimpleLogger.getLogger();
 
 
-    public MainMenu(final BlueSky g) {
-        myLog.debug("Checking...");
+    MainMenu(final BlueSky g) {
         myGame = g;
-
-        // Assign screen resolution for easy access
-//        int w = Gdx.graphics.getWidth();
-//        int h = Gdx.graphics.getHeight();
-        //float aspectRatio = (float)h / (float)w;
-
-        float gw = myGame.GAME_WIDTH;
-        float gh = myGame.GAME_HEIGHT;
-
         camera = new OrthographicCamera();
-        viewport = new FitViewport(gw, gh, camera);
-        //camera.setToOrtho(false, gw, gh);
-
-//        camera.position.set(gw, gh,0);
-        viewport.apply();
-
-        camera.position.set(camera.viewportWidth/2, camera.viewportHeight/2,0);
-
+        createUi();
     }
 
     @Override
@@ -47,31 +37,26 @@ public class MainMenu implements Screen {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Update camera once per frame
         camera.update();
 
-        // Tell batch to use coordinate system of camera
-        myGame.batch.setProjectionMatrix(camera.combined);
+        stage.act(delta);
+        stage.draw();
 
-        myGame.batch.begin();
-
-        myGame.batch.draw(Assets.backgroundImage, 0, 0 , myGame.GAME_WIDTH, myGame.GAME_HEIGHT);
-        // Create game text with default font
-        Assets.font.draw(myGame.batch, "Project BlueSky", 15, 150);
-        Assets.font.draw(myGame.batch, "Press ENTER to begin!", 2, 130);
-        myGame.batch.end();
-
-        // When user presses any key, game will start
         if (Gdx.input.isKeyPressed(Input.Keys.ENTER)){
+            myLog.info("Enter button pressed on keyboard");
             myGame.setScreen(new MainGame(myGame));
-            dispose();
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
+            myLog.info("Escape button pressed on keyboard");
+            myLog.info("Exiting...");
+            Gdx.app.exit();
         }
     }
 
     @Override
     public void resize(int width, int height) {
-        viewport.update(width, height);
-        camera.position.set(camera.viewportWidth/2, camera.viewportHeight/2,0);
+        stage.getViewport().update(width, height, true);
     }
 
     @Override
@@ -92,6 +77,67 @@ public class MainMenu implements Screen {
 
     @Override
     public void dispose() {
+        stage.dispose();
+        skin.dispose();
     }
 
+    private void createUi(){
+        myLog.info("Creating Main menu");
+        Table table;
+        Texture background;
+
+        skin = new Skin();
+        table = new Table();
+        stage = new Stage(new FitViewport(BlueSky.GAME_WIDTH, BlueSky.GAME_HEIGHT, camera));
+        Gdx.input.setInputProcessor(stage);
+
+        background = new Texture(Gdx.files.internal("background.png"));
+
+        skin.add("background", background);
+        skin.add("Font", new BitmapFont(Gdx.files.internal("font.fnt"), Gdx.files.internal("font.png"), false));
+
+        TextButtonStyle textButtonStyle = new TextButtonStyle();
+        textButtonStyle.font = skin.getFont("Font");
+
+        Label.LabelStyle LabelStyle = new Label.LabelStyle();
+        LabelStyle.font = skin.getFont("Font");
+
+        skin.add("default", textButtonStyle);
+        skin.add("default", LabelStyle);
+
+        table.setFillParent(true);
+        table.align(Align.center|Align.bottom);
+
+        table.setBackground(skin.getDrawable("background"));
+
+        Label gameInfo = new Label("", skin);
+        gameInfo.setText("BlueSky v" + BlueSky.VERSION + " by Eriks Ocakovskis");
+        gameInfo.setFontScale(0.5f);
+        final TextButton newGameButton = new TextButton("New Game", skin);
+        final TextButton exitButton = new TextButton("Exit", skin);
+
+
+
+        newGameButton.addListener(new ChangeListener() {
+            public void changed (ChangeEvent event, Actor actor){
+                myLog.info("New Game UI button pressed");
+                myGame.setScreen(new MainGame(myGame));
+            }
+        });
+
+        exitButton.addListener(new ChangeListener() {
+            public void changed (ChangeEvent event, Actor actor){
+                myLog.info("Exit UI button pressed");
+                myLog.info("Exiting...");
+                Gdx.app.exit();
+            }
+        });
+
+        table.add(newGameButton);
+        table.row();
+        table.add(exitButton).padTop(10);
+        table.row();
+        table.add(gameInfo).padTop(BlueSky.GAME_HEIGHT/2.2f);
+        stage.addActor(table);
+    }
 }

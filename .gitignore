@@ -77,7 +77,7 @@ Thumbs.db
 *.png
 *.mp3
 *.gif
-*.ttf
+*.fnt
 
 ## Logs
 logs/

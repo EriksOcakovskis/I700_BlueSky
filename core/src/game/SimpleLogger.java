@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.CharacterIterator;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -13,12 +12,12 @@ import java.util.*;
  */
 public class SimpleLogger {
     // Log level constants
-    public final int ALL = 5;
-    public final int DEBUG = 10;
-    public final int INFO = 20;
-    public final int WARN = 30;
-    public final int ERROR = 40;
-    public final int NONE = 100;
+    public static final int ALL = 5;
+    public static final int DEBUG = 10;
+    public static final int INFO = 20;
+    public static final int WARN = 30;
+    public static final int ERROR = 40;
+    public static final int NONE = 100;
 
     // Log level set for input verification
     private static final Set<Integer> logLevels = new HashSet<Integer>(Arrays.asList(5,10,20,30,40,100));
@@ -26,7 +25,7 @@ public class SimpleLogger {
     private File logPath;
     private int logLevel;
 
-    // Set default log path as <current date>.log
+    // Set default log path as /logs/<current date>.log
     private Date date = new Date();
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     private String strDate = sdf.format(date);
@@ -40,7 +39,7 @@ public class SimpleLogger {
         this.logLevel = INFO;
     }
 
-    public static SimpleLogger getLogger() {
+    static SimpleLogger getLogger() {
         if (logger == null){
             logger = new SimpleLogger();
         }
@@ -51,7 +50,7 @@ public class SimpleLogger {
         return logLevel;
     }
 
-    public void setLogLevel(int logLevel) {
+    void setLogLevel(int logLevel) {
         if (logLevels.contains(logLevel)){
             this.logLevel = logLevel;
         }
@@ -61,14 +60,34 @@ public class SimpleLogger {
         return logPath.toString();
     }
 
-    public void setLogFile(String logFile) {
+    void setLogFile(String logFile) {
         if(logFile.matches("^[A-Za-z._\\-\\d ]++$")){
             this.logPath = new File(basePath + logFile + "_" + defaultLogFile);
         }
     }
 
-    public void debug(String message){
-        handleWritingFile(logPath, "DEBUG" ,message);
+    void debug(String message){
+        if (logLevel <= 10){
+            handleWritingFile(logPath, "DEBUG", message);
+        }
+    }
+
+    void info(String message){
+        if (logLevel <= 20){
+            handleWritingFile(logPath, "INFO", message);
+        }
+    }
+
+    public void warn(String message){
+        if (logLevel <= 30){
+            handleWritingFile(logPath, "WARNING", message);
+        }
+    }
+
+    public void error(String message){
+        if (logLevel <= 40){
+            handleWritingFile(logPath, "ERROR", message);
+        }
     }
 
     private void handleWritingFile(File file, String logLevel ,String input) {

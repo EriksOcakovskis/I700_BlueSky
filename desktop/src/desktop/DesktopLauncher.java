@@ -11,6 +11,7 @@ public class DesktopLauncher {
         config.title = "Blue Sky";
         config.width = 1440;
         config.height = 900;
+        config.forceExit = true;
         new LwjglApplication(new BlueSky(), config);
     }
 }

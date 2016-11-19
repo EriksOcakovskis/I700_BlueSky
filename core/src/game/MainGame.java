@@ -11,21 +11,24 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.Iterator;
 
-public class MainGame implements Screen {
+class MainGame implements Screen {
     final BlueSky myGame;
 
     private OrthographicCamera camera;
     private Viewport viewport;
     private Player player;
     private Array<FireBall> fireBalls;
-    private long lastFireBallSpawnTime;
     private long startTime;
+    private float gw;
+    private float gh;
+    private static SimpleLogger myLog;
 
-    public MainGame(final BlueSky g) {
-        myGame = g;
+    MainGame(final BlueSky game) {
+        myGame = game;
+        myLog = SimpleLogger.getLogger();
 
-        float gw = myGame.GAME_WIDTH;
-        float gh = myGame.GAME_HEIGHT;
+        gw = BlueSky.GAME_WIDTH;
+        gh = BlueSky.GAME_HEIGHT;
 
         camera = new OrthographicCamera();
         viewport = new FitViewport(gw, gh, camera);
@@ -34,10 +37,8 @@ public class MainGame implements Screen {
 
         camera.position.set(camera.viewportWidth/2, camera.viewportHeight/2,0);
 
-        // Creating player
-        player = new Player(((int)(gw/2)), (Player.textureHeight));
+        player = new Player(((int)(gw/2)), (Player.height));
 
-        // Fireball array
         fireBalls = new Array<FireBall>();
 
         startTime = TimeUtils.nanoTime();
@@ -59,12 +60,12 @@ public class MainGame implements Screen {
         myGame.batch.setProjectionMatrix(camera.combined);
 
         myGame.batch.begin();
-        myGame.batch.draw(Assets.backgroundImage, 0, 0 , myGame.GAME_WIDTH, myGame.GAME_HEIGHT);
-        myGame.batch.draw(Assets.playerImage, player.hitBox.x, player.hitBox.y, myGame.GAME_WIDTH/10, myGame.GAME_HEIGHT/20);
+        myGame.batch.draw(Assets.backgroundImage, 0, 0 , gw, gh);
+        myGame.batch.draw(Assets.playerImage, player.hitBox.x, player.hitBox.y, gw/10, gh/20);
         for(FireBall fireBall: fireBalls) {
             myGame.batch.draw(Assets.fireBallImage, fireBall.hitBox.getX(), fireBall.hitBox.getY());
         }
-        Assets.font.draw(myGame.batch, Integer.toString(player.life), 16, myGame.GAME_HEIGHT - 16);
+        Assets.font.draw(myGame.batch, Integer.toString(player.life), 16, gh - 16);
         myGame.batch.end();
 
         // Player movement
@@ -119,16 +120,19 @@ public class MainGame implements Screen {
     }
 
     private void updateFireballs(){
-        if (TimeUtils.nanoTime() - lastFireBallSpawnTime > 500000000) {
-            for (FireBall fB:fireBalls) {
-                fB.hitBox.getX();
+        if (fireBalls != null && fireBalls.size != 0) {
+            FireBall lastFireball = fireBalls.get(fireBalls.size - 1);
+            if (lastFireball.hitBox.getY() <= (int)BlueSky.GAME_HEIGHT - FireBall.spawnHeight){
+                myLog.debug("last fireball y: " + lastFireball.hitBox.getY());
+                if (fireBalls != null && fireBalls.size > 1){
+                    myLog.debug("second to lase last fireball y: " + fireBalls.get(fireBalls.size - 2).hitBox.getY());
+                }
+                spawnFireBall();
             }
-            int x = (int)MathUtils.random(0, myGame.GAME_WIDTH - 16);
-            int y = (int)myGame.GAME_HEIGHT;
-            FireBall fireBall = new FireBall(x, y);
-            fireBalls.add(fireBall);
-            lastFireBallSpawnTime = TimeUtils.nanoTime();
+        } else {
+            spawnFireBall();
         }
+
 
         Iterator<FireBall> iter = fireBalls.iterator();
         while(iter.hasNext()) {
@@ -140,21 +144,23 @@ public class MainGame implements Screen {
             } else {
                 if (TimeUtils.nanoTime() - startTime > 500000000){
                     startTime = TimeUtils.nanoTime();
-                    fireBall.setMovementSpeed(fireBall.getMovementSpeed() + 20);
+                    if (FireBall.movementSpeed < 400){
+                        FireBall.movementSpeed += 20;
+                        FireBall.spawnHeight -= 5;
+                    }
                 }
             }
-            fireBall.hitBox.y -= fireBall.getMovementSpeed() * Gdx.graphics.getDeltaTime();
-            if(fireBall.hitBox.y + 16 < 0) iter.remove();
+            fireBall.hitBox.y -= FireBall.movementSpeed * Gdx.graphics.getDeltaTime();
+            if(fireBall.hitBox.y + FireBall.height < 0) iter.remove();
         }
     }
 
 
     public void spawnFireBall(){
-        int x = (int)MathUtils.random(0, myGame.GAME_WIDTH - 16);
-        int y = (int)myGame.GAME_HEIGHT;
+        int x = (int)MathUtils.random(0, BlueSky.GAME_WIDTH - FireBall.height);
+        int y = (int)BlueSky.GAME_HEIGHT;
         FireBall fireBall = new FireBall(x, y);
         fireBalls.add(fireBall);
-        lastFireBallSpawnTime = TimeUtils.nanoTime();
     }
 
     public boolean collisionDetection(FireBall fireBall){

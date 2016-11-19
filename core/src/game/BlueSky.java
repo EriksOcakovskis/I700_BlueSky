@@ -7,18 +7,19 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
  * Created by eriks on 26/10/2016.
  */
 public class BlueSky extends Game {
-    public final static float GAME_WIDTH = 320;
-    public final static float GAME_HEIGHT = 640;
+    static final float GAME_WIDTH = 320;
+    static final float GAME_HEIGHT = 640;
+    static final double VERSION = 0.1;
     SpriteBatch batch;
 
-    public SimpleLogger myLog = SimpleLogger.getLogger();
+    private static SimpleLogger myLog = SimpleLogger.getLogger();
 
     public void create(){
         batch = new SpriteBatch();
         Assets.load();
         myLog.setLogFile("BlueSky");
-        myLog.setLogLevel(myLog.DEBUG);
-        myLog.debug("Starting...");
+        myLog.setLogLevel(SimpleLogger.DEBUG);
+        myLog.info("Starting...");
         this.setScreen(new MainMenu(this));
     }
 

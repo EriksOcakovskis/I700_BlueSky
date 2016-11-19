@@ -1,12 +1,15 @@
 package game;
 
+import com.badlogic.gdx.utils.TimeUtils;
+
 /**
  * Created by eriks on 14/11/2016.
  */
-public class FireBall extends Enemy {
+class FireBall extends Enemy {
     public static final int width = 12;
     public static final int height = 16;
-    private static int movementSpeed = 200;
+    public static int movementSpeed = 100;
+    public static int spawnHeight = 140;
 
     FireBall(int x, int y){
         super(x, y, width, height);
@@ -16,17 +19,8 @@ public class FireBall extends Enemy {
 
     }
 
-    public static int getMovementSpeed() {
-        return movementSpeed;
-    }
-
-    public static void setMovementSpeed(int movementSpeed) {
-        FireBall.movementSpeed = movementSpeed;
-    }
-
     public void hitPlayer(){
-        movementSpeed = 200;
+        movementSpeed = 100;
+        spawnHeight = 140;
     }
-
-
 }
