@@ -11,21 +11,38 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.Iterator;
 
-class MainGame implements Screen {
+public class MainGame implements Screen {
     final BlueSky myGame;
 
     private OrthographicCamera camera;
     private Viewport viewport;
     private Player player;
+    public static LifePickup lifePickup;
+//    private Array<LifePickup> lifePickups;
+    private long lifePickupLastSpawnScore;
     private Array<FireBall> fireBalls;
     private long startTime;
-    private float gw;
-    private float gh;
+    private long scoreStartTime;
+    private long lifePickupStartTime;
+    private int gw;
+    private int gh;
     private static SimpleLogger myLog;
+    private State state;
 
-    MainGame(final BlueSky game) {
+    public enum State
+    {
+        RUNNING,
+        PAUSE,
+        RESUME,
+        GAMEOVER,
+        GAMEWON
+    }
+
+    public MainGame(final BlueSky game) {
         myGame = game;
         myLog = SimpleLogger.getLogger();
+
+        state = State.RUNNING;
 
         gw = BlueSky.GAME_WIDTH;
         gh = BlueSky.GAME_HEIGHT;
@@ -37,19 +54,21 @@ class MainGame implements Screen {
 
         camera.position.set(camera.viewportWidth/2, camera.viewportHeight/2,0);
 
-        player = new Player(((int)(gw/2)), (Player.textureHeight / 2));
+        player = new Player(gw/2, Player.textureHeight / 2);
         myLog.debug("Player hit box x location: " + player.hitBox.x );
         myLog.debug("Player hit box y location: " + player.hitBox.y );
 
         fireBalls = new Array<FireBall>();
+        lifePickupLastSpawnScore = 0;
+        //lifePickups = new Array<LifePickup>();
 
         startTime = TimeUtils.nanoTime();
     }
 
     @Override
     public void render(float delta) {
-        updateFireballs();
-        player.update(delta);
+        update(delta);
+        checkCollisions();
         draw();
     }
 
@@ -66,12 +85,12 @@ class MainGame implements Screen {
 
     @Override
     public void pause() {
-
+        state = State.PAUSE;
     }
 
     @Override
     public void resume() {
-
+        state = State.PAUSE;
     }
 
     @Override
@@ -85,10 +104,77 @@ class MainGame implements Screen {
         Assets.dispose();
     }
 
+    private void draw(){
+        // Clear the screen and set background color
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        camera.update();
+
+        myGame.batch.setProjectionMatrix(camera.combined);
+
+        myGame.batch.begin();
+        myGame.batch.draw(Assets.backgroundImage, 0, 0 , gw, gh);
+        myGame.batch.draw(Assets.uiBackgroundImage, 0, gh-gh/10, gw, gh/10);
+
+        // Draw life pickup
+        if (lifePickup != null){
+            //LifePickup lifePickup = lifePickups.first();
+            if (lifePickup.isQuarterLifeReached()){
+                myGame.batch.draw(
+                        Assets.quarterLifePickupImage, lifePickup.hitBox.x, lifePickup.hitBox.y,
+                        LifePickup.width, LifePickup.height
+                );
+            } else {
+                myGame.batch.draw(
+                        Assets.lifePickupImage, lifePickup.hitBox.x, lifePickup.hitBox.y,
+                        LifePickup.width, LifePickup.height
+                );
+            }
+        }
+
+        float playerBatchX = player.hitBox.x - Player.boundariesX;
+        float playerBatchY = player.hitBox.y;
+        myGame.batch.draw(
+                Assets.playerImage, playerBatchX, playerBatchY,
+                Player.textureWidth, Player.textureHeight
+        );
+
+        for(FireBall fireBall: fireBalls) {
+            myGame.batch.draw(
+                    Assets.fireBallImage, fireBall.hitBox.x, fireBall.hitBox.y,
+                    FireBall.textureWidth, FireBall.textureHeight
+            );
+        }
+
+        // Draw player life
+        myGame.batch.draw(Assets.lifeUiImage, gw/320, gh - gh/10, gw/10, gh/10);
+        Assets.font64.draw(myGame.batch, Integer.toString(player.getLife()), gw/10 + 6, gh - gh/40);
+
+        // Draw bomb
+        myGame.batch.draw(Assets.bombUiImage, gw/4, (gh + 2) - gh/10, gw/10, gh/10);
+        Assets.font64.draw(myGame.batch, Integer.toString(player.getBombPickup()), gw/4 + gw/10 + 6, gh - gh/40);
+
+        //Draw score
+        Assets.font64.draw(myGame.batch, Long.toString(player.getScore()), gw/2 + 76, gh - gh/40);
+        myGame.batch.end();
+    }
+
+    private void update(float delta){
+        updateFireballs();
+        player.update(delta);
+        updatePlayerScore();
+        spawnLifePickup();
+    }
+
+    private void checkCollisions(){
+        pickupCollisionDetection();
+    }
+
     private void updateFireballs(){
         if (fireBalls != null && fireBalls.size != 0) {
             FireBall lastFireball = fireBalls.get(fireBalls.size - 1);
-            if (lastFireball.hitBox.getY() <= (int)BlueSky.GAME_HEIGHT - FireBall.spawnHeight){
+            if (lastFireball.hitBox.y <= BlueSky.GAME_HEIGHT - FireBall.spawnDistanceY){
                 myLog.debug("last fireball y: " + lastFireball.hitBox.getY());
                 if (fireBalls != null && fireBalls.size > 1){
                     myLog.debug("second to lase last fireball y: " + fireBalls.get(fireBalls.size - 2).hitBox.getY());
@@ -102,7 +188,7 @@ class MainGame implements Screen {
         Iterator<FireBall> iter = fireBalls.iterator();
         while(iter.hasNext()) {
             FireBall fireBall = iter.next();
-            collisionDetection(fireBall);
+            enemyCollisionDetection(fireBall);
             if (fireBall.collided()){
                 fireBall.hitPlayer();
                 player.hitEnemy();
@@ -110,14 +196,14 @@ class MainGame implements Screen {
             } else {
                 if (TimeUtils.nanoTime() - startTime > 500000000){
                     startTime = TimeUtils.nanoTime();
-                    if (FireBall.movementSpeed < 600){
+                    if (FireBall.movementSpeed < gh){
                         FireBall.movementSpeed += 10;
-                        if (FireBall.spawnHeight > 65){
-                            FireBall.spawnHeight -= 5;
+                        if (FireBall.spawnDistanceY > FireBall.height*3){
+                            FireBall.spawnDistanceY -= 4;
                         }
-                        myLog.debug("Fireball movement speed y: " + FireBall.movementSpeed);
-                        myLog.debug("Distance between Fireballs y: " + FireBall.spawnHeight);
+                        myLog.debug("Distance between Fireballs y: " + FireBall.spawnDistanceY);
                     }
+                    myLog.debug("Fireball movement speed y: " + FireBall.movementSpeed);
                 }
             }
             fireBall.hitBox.y -= FireBall.movementSpeed * Gdx.graphics.getDeltaTime();
@@ -127,8 +213,8 @@ class MainGame implements Screen {
 
 
     private void spawnFireBall(){
-        int x = (int)MathUtils.random(0, BlueSky.GAME_WIDTH - FireBall.width);
-        int y = (int)BlueSky.GAME_HEIGHT;
+        int x = MathUtils.random(FireBall.textureWidth, BlueSky.GAME_WIDTH - FireBall.textureWidth);
+        int y = BlueSky.GAME_HEIGHT;
         FireBall fireBall = new FireBall(x, y);
         fireBalls.add(fireBall);
     }
@@ -140,52 +226,95 @@ class MainGame implements Screen {
         myLog.debug("last fireball x: " + lastFireball.hitBox.x);
 
         if (lastFireball.hitBox.x < BlueSky.GAME_WIDTH / 2) {
-            x = (int)MathUtils.random(BlueSky.GAME_WIDTH / 2, BlueSky.GAME_WIDTH - FireBall.textureWidth);
+            x = MathUtils.random(BlueSky.GAME_WIDTH / 2, BlueSky.GAME_WIDTH - FireBall.textureWidth);
         } else {
-            x = (int)MathUtils.random(FireBall.textureWidth, BlueSky.GAME_WIDTH / 2);
+            x = MathUtils.random(FireBall.textureWidth, BlueSky.GAME_WIDTH / 2);
         }
 
         myLog.debug("Spawning fireball at x: " + x);
 
-        y = (int)BlueSky.GAME_HEIGHT;
+        y = BlueSky.GAME_HEIGHT;
         FireBall fireBall = new FireBall(x, y);
         fireBalls.add(fireBall);
     }
 
-    private void collisionDetection(FireBall fireBall){
+    private void enemyCollisionDetection(FireBall fireBall){
         if (player.hitBox.overlaps(fireBall.hitBox)){
             fireBall.setCollision(true);
         }
     }
 
-    private void draw(){
-        // Clear the screen and set background color
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        camera.update();
-
-        myGame.batch.setProjectionMatrix(camera.combined);
-
-        myGame.batch.begin();
-        myGame.batch.draw(Assets.backgroundImage, 0, 0 , gw, gh);
-
-        float playerBatchX = player.hitBox.x - ((Player.textureWidth - Player.width) / 2);
-        float playerBatchY = player.hitBox.y - ((Player.textureHeight - Player.height) / 2);
-        myGame.batch.draw(
-                Assets.playerImage, playerBatchX, playerBatchY,
-                Player.textureWidth, Player.textureHeight
-        );
-
-        for(FireBall fireBall: fireBalls) {
-            myGame.batch.draw(
-                    Assets.fireBallImage, fireBall.hitBox.x - 2 , fireBall.hitBox.y,
-                    FireBall.textureWidth, FireBall.textureHeight
-            );
+    private void pickupCollisionDetection(){
+        if (lifePickup != null){
+            if (player.hitBox.overlaps(lifePickup.hitBox)){
+                player.hitLifePickup();
+                lifePickup = null;
+            }
         }
-        Assets.font.draw(myGame.batch, Integer.toString(player.life), 16, gh - 16);
-        myGame.batch.end();
+
     }
 
+    private void updatePlayerScore(){
+        if (TimeUtils.nanoTime() - scoreStartTime > TimeUtils.millisToNanos(2080 - FireBall.movementSpeed)){
+            if (player.getScore() >= 999990){
+                state = State.GAMEWON;
+            } else {
+                player.setScore();
+            }
+            scoreStartTime = TimeUtils.nanoTime();
+        }
+    }
 
+    private void spawnLifePickup(){
+        if (lifePickup == null){
+            //int playerScoreCheck = (int)(player.getScore() / 1000);
+            int x = MathUtils.random(0, gw - LifePickup.width);
+            int y = MathUtils.random(gh - gh/2, gh - (gh/10 + LifePickup.height + 2));
+            //long temp = player.getScore() / (1000 * (LifePickup.timesSpawned + 1));
+            if (player.getScore() - lifePickupLastSpawnScore >= 1000){
+                lifePickup = new LifePickup(x, y);
+                //lifePickups.add(lifePickup);
+                lifePickupStartTime = TimeUtils.nanoTime();
+                lifePickupLastSpawnScore = player.getScore();
+            }
+        } else {
+            if (TimeUtils.nanoTime() - lifePickupStartTime > TimeUtils.millisToNanos(3750)){
+                lifePickup.setQuarterLifeReached(true);
+            }
+
+            if (TimeUtils.nanoTime() - lifePickupStartTime > TimeUtils.millisToNanos(5000)){
+                lifePickup = null;
+            }
+        }
+    }
+
+    private void checkGameState(){
+        checkGameWon();
+        checkGameOver();
+        checkGamePause();
+        checkGameResume();
+    }
+
+    private void checkGameWon(){
+        if (state == State.GAMEWON){
+            // Win screen
+        }
+    }
+
+    private void checkGameOver(){
+        if (player.getLife() <= 0){
+            state = State.GAMEOVER;
+        }
+        if (state == State.GAMEOVER){
+            // Game over screen
+        }
+    }
+
+    private void checkGamePause(){
+
+    }
+
+    private void checkGameResume(){
+
+    }
 }

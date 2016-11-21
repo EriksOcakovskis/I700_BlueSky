@@ -39,7 +39,7 @@ public class SimpleLogger {
         this.logLevel = INFO;
     }
 
-    static SimpleLogger getLogger() {
+    public static SimpleLogger getLogger() {
         if (logger == null){
             logger = new SimpleLogger();
         }
@@ -50,7 +50,7 @@ public class SimpleLogger {
         return logLevel;
     }
 
-    void setLogLevel(int logLevel) {
+    public void setLogLevel(int logLevel) {
         if (logLevels.contains(logLevel)){
             this.logLevel = logLevel;
         }
@@ -60,19 +60,19 @@ public class SimpleLogger {
         return logPath.toString();
     }
 
-    void setLogFile(String logFile) {
+    public void setLogFile(String logFile) {
         if(logFile.matches("^[A-Za-z._\\-\\d ]++$")){
             this.logPath = new File(basePath + logFile + "_" + defaultLogFile);
         }
     }
 
-    void debug(String message){
+    public void debug(String message){
         if (logLevel <= 10){
             handleWritingFile(logPath, "DEBUG", message);
         }
     }
 
-    void info(String message){
+    public void info(String message){
         if (logLevel <= 20){
             handleWritingFile(logPath, "INFO", message);
         }

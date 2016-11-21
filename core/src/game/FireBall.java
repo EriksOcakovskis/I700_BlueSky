@@ -1,18 +1,16 @@
 package game;
 
-import com.badlogic.gdx.utils.TimeUtils;
-
 /**
  * Created by eriks on 14/11/2016.
  */
 class FireBall extends Enemy {
     private boolean collision;
-    static final int width = 12;
-    static final int height = 16;
-    static final int textureWidth = 16;
-    static final int textureHeight = 16;
-    static int movementSpeed = 100;
-    static int spawnHeight = 140;
+    static final int width = BlueSky.GAME_HEIGHT/80;
+    static final int height = 44;
+    static final int textureWidth = BlueSky.GAME_HEIGHT/80;
+    static final int textureHeight = 44;
+    static int movementSpeed = BlueSky.GAME_HEIGHT/8;
+    static int spawnDistanceY = 140;
 
     FireBall(int x, int y){
         super(x, y, width, height);
@@ -24,8 +22,8 @@ class FireBall extends Enemy {
     }
 
     void hitPlayer(){
-        movementSpeed = 100;
-        spawnHeight = 140;
+        movementSpeed = BlueSky.GAME_HEIGHT/8;
+        spawnDistanceY = 140;
     }
 
     boolean collided() {
