@@ -185,10 +185,6 @@ public class MainGame implements Screen {
         myGame.batch.draw(Assets.lifeUiImage, gw/320, gh - gh/10, gw/10, gh/10);
         Assets.font64.draw(myGame.batch, Integer.toString(player.getLife()), gw/10 + 6, gh - gh/40);
 
-        // Draw bomb
-        myGame.batch.draw(Assets.bombUiImage, gw/4, (gh + 2) - gh/10, gw/10, gh/10);
-        Assets.font64.draw(myGame.batch, Integer.toString(player.getBombPickup()), gw/4 + gw/10 + 6, gh - gh/40);
-
         //Draw score
         Assets.font64.draw(myGame.batch, Long.toString(player.getScore()), gw/2 + 76, gh - gh/40);
         myGame.batch.end();
