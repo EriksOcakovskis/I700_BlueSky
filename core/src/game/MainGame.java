@@ -1,6 +1,7 @@
 package game;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.MathUtils;
@@ -8,16 +9,17 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import game.MenuScreens.PauseMenu;
 
 import java.util.Iterator;
 
 public class MainGame implements Screen {
-    final BlueSky myGame;
+    private final BlueSky myGame;
 
     private OrthographicCamera camera;
     private Viewport viewport;
     private Player player;
-    public static LifePickup lifePickup;
+    private static LifePickup lifePickup;
     private long lifePickupLastSpawnScore;
     private FireBall directedFireball;
     private Array<FireBall> fireBalls;
@@ -28,7 +30,8 @@ public class MainGame implements Screen {
     private int gw;
     private int gh;
     private static SimpleLogger myLog;
-    private State state;
+    private PauseMenu pauseMenu;
+    public static State gameState;
 
     public enum State
     {
@@ -43,7 +46,7 @@ public class MainGame implements Screen {
         myGame = game;
         myLog = SimpleLogger.getLogger();
 
-        state = State.RUNNING;
+        gameState = State.RUNNING;
 
         gw = BlueSky.GAME_WIDTH;
         gh = BlueSky.GAME_HEIGHT;
@@ -65,13 +68,30 @@ public class MainGame implements Screen {
 
         startTime = TimeUtils.nanoTime();
         directedFireBallStartTime = startTime;
+        pauseMenu = new PauseMenu();
     }
 
     @Override
     public void render(float delta) {
-        update(delta);
-        checkCollisions();
-        draw();
+        switch (gameState) {
+            case RUNNING:
+                update(delta);
+                checkCollisions();
+                draw();
+                break;
+            case PAUSE:
+                draw();
+                pauseMenu.render(delta);
+                break;
+            case RESUME:
+                gameState = State.RUNNING;
+                break;
+
+            case GAMEOVER:
+                break;
+            case GAMEWON:
+                break;
+        }
     }
 
     @Override
@@ -87,23 +107,25 @@ public class MainGame implements Screen {
 
     @Override
     public void pause() {
-        state = State.PAUSE;
+        myLog.info("Pause menu entered via 'Pause' call");
+        gameState = State.PAUSE;
+        //Save high score
     }
 
     @Override
     public void resume() {
-        state = State.PAUSE;
+        gameState = State.PAUSE;
     }
 
     @Override
     public void hide() {
-        // Used for mobile
+        myLog.info("Pause menu entered via 'Hide' call");
+        gameState = State.PAUSE;
     }
 
     @Override
     public void dispose() {
-        myGame.batch.dispose();
-        Assets.dispose();
+        myGame.dispose();
     }
 
     // Draw game objects
@@ -174,6 +196,11 @@ public class MainGame implements Screen {
 
     // Object Updates
     private void update(float delta){
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
+            myLog.info("Escape button pressed on keyboard");
+            pause();
+            return;
+        }
         updateFireballs();
         updateDirectedFireBall();
         player.update(delta);
@@ -200,7 +227,7 @@ public class MainGame implements Screen {
     private void updatePlayerScore(){
         if (TimeUtils.nanoTime() - scoreStartTime > TimeUtils.millisToNanos(2080 - FireBall.globalMovementSpeed)){
             if (player.getScore() >= 999990){
-                state = State.GAMEWON;
+                gameState = State.GAMEWON;
             } else {
                 player.setScore();
             }
@@ -352,16 +379,16 @@ public class MainGame implements Screen {
     }
 
     private void checkGameWon(){
-        if (state == State.GAMEWON){
+        if (gameState == State.GAMEWON){
             // Win screen
         }
     }
 
     private void checkGameOver(){
         if (player.getLife() <= 0){
-            state = State.GAMEOVER;
+            gameState = State.GAMEOVER;
         }
-        if (state == State.GAMEOVER){
+        if (gameState == State.GAMEOVER){
             // Game over screen
         }
     }

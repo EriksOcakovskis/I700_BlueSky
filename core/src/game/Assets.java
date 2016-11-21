@@ -2,6 +2,7 @@ package game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
@@ -21,7 +22,6 @@ class Assets {
     static Texture playerImage;
     static Texture fireBallImage;
     static Music backgroundMusic;
-    static BitmapFont font32;
     static BitmapFont font64;
 
     private static Texture loadTexture(String pathToFile){
@@ -45,10 +45,8 @@ class Assets {
         playerImage = loadTexture("plane.png");
         fireBallImage = loadTexture("fireball.png");
         backgroundMusic = loadMusic("undertreeinrain.mp3");
-        font32 = new BitmapFont(Gdx.files.internal("fonts/font_32.fnt"), Gdx.files.internal("fonts/font_32.png"), false);
-        font64 = new BitmapFont(Gdx.files.internal("fonts/font_64.fnt"), Gdx.files.internal("fonts/font_64.png"), false);
-
-        //backgroundImage.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+        font64 = new BitmapFont(Gdx.files.internal("fonts/font_64_b.fnt"), Gdx.files.internal("fonts/font_64_b.png"), false);
+        font64.setColor(Color.BLACK);
 
         // Loop the background music from beginning
         backgroundMusic.setLooping(true);
@@ -67,7 +65,6 @@ class Assets {
         playerImage.dispose();
         fireBallImage.dispose();
         backgroundMusic.dispose();
-        font32.dispose();
         font64.dispose();
     }
 }

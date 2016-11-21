@@ -30,6 +30,6 @@ public class BlueSky extends Game {
 
     public void dispose(){
         batch.dispose();
-        Assets.font32.dispose();
+        Assets.dispose();
     }
 }

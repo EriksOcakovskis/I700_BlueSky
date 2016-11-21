@@ -98,13 +98,21 @@ public class MainMenu implements Screen {
         background = new Texture(Gdx.files.internal("background.png"));
 
         skin.add("background", background);
-        skin.add("Font", new BitmapFont(Gdx.files.internal("fonts/font_32.fnt"), Gdx.files.internal("fonts/font_32.png"), false));
+
+        skin.add("Font64", new BitmapFont(Gdx.files.internal("fonts/font_64.fnt"),
+                Gdx.files.internal("fonts/font_64.png"), false)
+        );
+        skin.add("Font64B", new BitmapFont(Gdx.files.internal("fonts/font_64_b.fnt"),
+                Gdx.files.internal("fonts/font_64_b.png"), false)
+        );
 
         TextButtonStyle textButtonStyle = new TextButtonStyle();
-        textButtonStyle.font = skin.getFont("Font");
+        textButtonStyle.font = skin.getFont("Font64");
+        textButtonStyle.fontColor = Color.BLACK;
+        textButtonStyle.overFontColor = Color.WHITE;
 
         Label.LabelStyle LabelStyle = new Label.LabelStyle();
-        LabelStyle.font = skin.getFont("Font");
+        LabelStyle.font = skin.getFont("Font64B");
 
         skin.add("default", textButtonStyle);
         skin.add("default", LabelStyle);
@@ -120,14 +128,11 @@ public class MainMenu implements Screen {
         final TextButton newGameButton = new TextButton("New Game", skin);
         final TextButton exitButton = new TextButton("Exit", skin);
 
-
-
         newGameButton.addListener(new ChangeListener() {
             public void changed (ChangeEvent event, Actor actor){
                 myLog.info("New Game UI button pressed");
                 myGame.setScreen(new MainGame(myGame));
                 dispose();
-
             }
         });
 
