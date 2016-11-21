@@ -1,5 +1,7 @@
 package game;
 
+import com.badlogic.gdx.Gdx;
+
 /**
  * Created by eriks on 14/11/2016.
  */
@@ -9,7 +11,8 @@ class FireBall extends Enemy {
     static final int height = 44;
     static final int textureWidth = BlueSky.GAME_HEIGHT/80;
     static final int textureHeight = 44;
-    static int movementSpeed = BlueSky.GAME_HEIGHT/8;
+    static int globalMovementSpeed = BlueSky.GAME_HEIGHT/8;
+    private int movementSpeed;
     static int spawnDistanceY = 140;
 
     FireBall(int x, int y){
@@ -17,12 +20,14 @@ class FireBall extends Enemy {
         this.collision = false;
     }
 
-    public void update(float delta){
-
+    FireBall(int x, int y, int mS){
+        super(x, y, width, height);
+        this.collision = false;
+        this.movementSpeed = mS;
     }
 
     void hitPlayer(){
-        movementSpeed = BlueSky.GAME_HEIGHT/8;
+        globalMovementSpeed = BlueSky.GAME_HEIGHT/8;
         spawnDistanceY = 140;
     }
 
@@ -32,5 +37,13 @@ class FireBall extends Enemy {
 
     void setCollision(boolean collision) {
         this.collision = collision;
+    }
+
+    public int getMovementSpeed() {
+        return movementSpeed;
+    }
+
+    public void setMovementSpeed(int movementSpeed) {
+        this.movementSpeed = movementSpeed;
     }
 }

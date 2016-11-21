@@ -20,9 +20,11 @@ public class MainGame implements Screen {
     public static LifePickup lifePickup;
 //    private Array<LifePickup> lifePickups;
     private long lifePickupLastSpawnScore;
+    private FireBall directedFireball;
     private Array<FireBall> fireBalls;
     private long startTime;
     private long scoreStartTime;
+    private long directedFireBallStartTime;
     private long lifePickupStartTime;
     private int gw;
     private int gh;
@@ -63,6 +65,7 @@ public class MainGame implements Screen {
         //lifePickups = new Array<LifePickup>();
 
         startTime = TimeUtils.nanoTime();
+        directedFireBallStartTime = startTime;
     }
 
     @Override
@@ -133,12 +136,21 @@ public class MainGame implements Screen {
             }
         }
 
+        // Draw payer
         float playerBatchX = player.hitBox.x - Player.boundariesX;
         float playerBatchY = player.hitBox.y;
         myGame.batch.draw(
                 Assets.playerImage, playerBatchX, playerBatchY,
                 Player.textureWidth, Player.textureHeight
         );
+
+        // Draw fireballs
+        if (directedFireball != null){
+            myGame.batch.draw(
+                    Assets.fireBallImage, directedFireball.hitBox.x, directedFireball.hitBox.y,
+                    FireBall.textureWidth, FireBall.textureHeight
+            );
+        }
 
         for(FireBall fireBall: fireBalls) {
             myGame.batch.draw(
@@ -162,6 +174,7 @@ public class MainGame implements Screen {
 
     private void update(float delta){
         updateFireballs();
+        updateDirectedFireBall();
         player.update(delta);
         updatePlayerScore();
         spawnLifePickup();
@@ -169,9 +182,11 @@ public class MainGame implements Screen {
 
     private void checkCollisions(){
         pickupCollisionDetection();
+        directedFireballCollisionDetection();
     }
 
     private void updateFireballs(){
+        spawnDirectedFireBall();
         if (fireBalls != null && fireBalls.size != 0) {
             FireBall lastFireball = fireBalls.get(fireBalls.size - 1);
             if (lastFireball.hitBox.y <= BlueSky.GAME_HEIGHT - FireBall.spawnDistanceY){
@@ -188,25 +203,23 @@ public class MainGame implements Screen {
         Iterator<FireBall> iter = fireBalls.iterator();
         while(iter.hasNext()) {
             FireBall fireBall = iter.next();
-            enemyCollisionDetection(fireBall);
+            fireBallsCollisionDetection(fireBall);
             if (fireBall.collided()){
-                fireBall.hitPlayer();
-                player.hitEnemy();
                 iter.remove();
             } else {
                 if (TimeUtils.nanoTime() - startTime > 500000000){
                     startTime = TimeUtils.nanoTime();
-                    if (FireBall.movementSpeed < gh){
-                        FireBall.movementSpeed += 10;
+                    if (FireBall.globalMovementSpeed < gh){
+                        FireBall.globalMovementSpeed += 10;
                         if (FireBall.spawnDistanceY > FireBall.height*3){
                             FireBall.spawnDistanceY -= 4;
                         }
                         myLog.debug("Distance between Fireballs y: " + FireBall.spawnDistanceY);
                     }
-                    myLog.debug("Fireball movement speed y: " + FireBall.movementSpeed);
+                    myLog.debug("Fireball movement speed y: " + FireBall.globalMovementSpeed);
                 }
             }
-            fireBall.hitBox.y -= FireBall.movementSpeed * Gdx.graphics.getDeltaTime();
+            fireBall.hitBox.y -= FireBall.globalMovementSpeed * Gdx.graphics.getDeltaTime();
             if(fireBall.hitBox.y + FireBall.height < 0) iter.remove();
         }
     }
@@ -238,9 +251,41 @@ public class MainGame implements Screen {
         fireBalls.add(fireBall);
     }
 
-    private void enemyCollisionDetection(FireBall fireBall){
+    private void spawnDirectedFireBall(){
+        if (directedFireball == null){
+            if (TimeUtils.nanoTime() - directedFireBallStartTime > TimeUtils.millisToNanos(2000)){
+                int x = (int)player.hitBox.x;
+                int y = BlueSky.GAME_HEIGHT;
+                directedFireball = new FireBall(x,y,gh/2);
+                directedFireBallStartTime = TimeUtils.nanoTime();
+            }
+        }
+    }
+
+    private void updateDirectedFireBall(){
+        if (directedFireball != null){
+            float speed = (directedFireball.getMovementSpeed() + FireBall.globalMovementSpeed) * Gdx.graphics.getDeltaTime();
+            directedFireball.hitBox.y -= speed;
+            if (directedFireball.hitBox.y + FireBall.height < 0 || directedFireball.collided()){
+                directedFireball = null;
+            }
+        }
+    }
+
+    private void directedFireballCollisionDetection(){
+        if (directedFireball != null){
+            if (player.hitBox.overlaps(directedFireball.hitBox)){
+                directedFireball.setCollision(true);
+                player.hitEnemy();
+            }
+        }
+    }
+
+    private void fireBallsCollisionDetection(FireBall fireBall){
         if (player.hitBox.overlaps(fireBall.hitBox)){
             fireBall.setCollision(true);
+            fireBall.hitPlayer();
+            player.hitEnemy();
         }
     }
 
@@ -255,7 +300,7 @@ public class MainGame implements Screen {
     }
 
     private void updatePlayerScore(){
-        if (TimeUtils.nanoTime() - scoreStartTime > TimeUtils.millisToNanos(2080 - FireBall.movementSpeed)){
+        if (TimeUtils.nanoTime() - scoreStartTime > TimeUtils.millisToNanos(2080 - FireBall.globalMovementSpeed)){
             if (player.getScore() >= 999990){
                 state = State.GAMEWON;
             } else {

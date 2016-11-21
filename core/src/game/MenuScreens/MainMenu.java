@@ -115,7 +115,7 @@ public class MainMenu implements Screen {
         table.setBackground(skin.getDrawable("background"));
 
         Label gameInfo = new Label("", skin);
-        gameInfo.setText("BlueSky v" + BlueSky.VERSION + " by Eriks Ocakovskis");
+        gameInfo.setText("V" + BlueSky.VERSION + " Eriks Ocakovskis C11");
         gameInfo.setFontScale(0.5f);
         final TextButton newGameButton = new TextButton("New Game", skin);
         final TextButton exitButton = new TextButton("Exit", skin);
