@@ -187,19 +187,80 @@ public class MainGame implements Screen {
 
     private void updateFireballs(){
         spawnDirectedFireBall();
-        if (fireBalls != null && fireBalls.size != 0) {
-            FireBall lastFireball = fireBalls.get(fireBalls.size - 1);
-            if (lastFireball.hitBox.y <= BlueSky.GAME_HEIGHT - FireBall.spawnDistanceY){
-                myLog.debug("last fireball y: " + lastFireball.hitBox.getY());
-                if (fireBalls != null && fireBalls.size > 1){
-                    myLog.debug("second to lase last fireball y: " + fireBalls.get(fireBalls.size - 2).hitBox.getY());
-                }
-                spawnFireBall(lastFireball);
+        spawnFireBallsBasedOnY();
+        allFireBallCollisionAndMovement();
+    }
+
+    private void updateDirectedFireBall(){
+        if (directedFireball != null){
+            float speed = (directedFireball.getMovementSpeed() + FireBall.globalMovementSpeed) * Gdx.graphics.getDeltaTime();
+            directedFireball.hitBox.y -= speed;
+            if (directedFireball.hitBox.y + FireBall.height < 0 || directedFireball.collided()){
+                directedFireball = null;
+            }
+        }
+    }
+
+    private void updatePlayerScore(){
+        if (TimeUtils.nanoTime() - scoreStartTime > TimeUtils.millisToNanos(2080 - FireBall.globalMovementSpeed)){
+            if (player.getScore() >= 999990){
+                state = State.GAMEWON;
+            } else {
+                player.setScore();
+            }
+            scoreStartTime = TimeUtils.nanoTime();
+        }
+    }
+
+    private void spawnLifePickup(){
+        if (lifePickup == null){
+            int x = MathUtils.random(0, gw - LifePickup.width);
+            int y = MathUtils.random(gh - gh/2, gh - (gh/10 + LifePickup.height + 2));
+            if (player.getScore() - lifePickupLastSpawnScore >= 1000){
+                lifePickup = new LifePickup(x, y);
+                lifePickupStartTime = TimeUtils.nanoTime();
+                lifePickupLastSpawnScore = player.getScore();
             }
         } else {
-            spawnFireBall();
+            if (TimeUtils.nanoTime() - lifePickupStartTime > TimeUtils.millisToNanos(3750)){
+                lifePickup.setQuarterLifeReached(true);
+            }
+
+            if (TimeUtils.nanoTime() - lifePickupStartTime > TimeUtils.millisToNanos(5000)){
+                lifePickup = null;
+            }
+        }
+    }
+
+
+    private void directedFireballCollisionDetection(){
+        if (directedFireball != null){
+            if (player.hitBox.overlaps(directedFireball.hitBox)){
+                directedFireball.setCollision(true);
+                player.hitEnemy();
+            }
+        }
+    }
+
+    private void fireBallsCollisionDetection(FireBall fireBall){
+        if (player.hitBox.overlaps(fireBall.hitBox)){
+            fireBall.setCollision(true);
+            fireBall.hitPlayer();
+            player.hitEnemy();
+        }
+    }
+
+    private void pickupCollisionDetection(){
+        if (lifePickup != null){
+            if (player.hitBox.overlaps(lifePickup.hitBox)){
+                player.hitLifePickup();
+                lifePickup = null;
+            }
         }
 
+    }
+
+    private void allFireBallCollisionAndMovement(){
         Iterator<FireBall> iter = fireBalls.iterator();
         while(iter.hasNext()) {
             FireBall fireBall = iter.next();
@@ -224,6 +285,20 @@ public class MainGame implements Screen {
         }
     }
 
+    private void spawnFireBallsBasedOnY(){
+        if (fireBalls != null && fireBalls.size != 0) {
+            FireBall lastFireball = fireBalls.get(fireBalls.size - 1);
+            if (lastFireball.hitBox.y <= BlueSky.GAME_HEIGHT - FireBall.spawnDistanceY){
+                myLog.debug("last fireball y: " + lastFireball.hitBox.getY());
+                if (fireBalls != null && fireBalls.size > 1){
+                    myLog.debug("second to lase last fireball y: " + fireBalls.get(fireBalls.size - 2).hitBox.getY());
+                }
+                spawnFireBall(lastFireball);
+            }
+        } else {
+            spawnFireBall();
+        }
+    }
 
     private void spawnFireBall(){
         int x = MathUtils.random(FireBall.textureWidth, BlueSky.GAME_WIDTH - FireBall.textureWidth);
@@ -262,76 +337,10 @@ public class MainGame implements Screen {
         }
     }
 
-    private void updateDirectedFireBall(){
-        if (directedFireball != null){
-            float speed = (directedFireball.getMovementSpeed() + FireBall.globalMovementSpeed) * Gdx.graphics.getDeltaTime();
-            directedFireball.hitBox.y -= speed;
-            if (directedFireball.hitBox.y + FireBall.height < 0 || directedFireball.collided()){
-                directedFireball = null;
-            }
-        }
-    }
 
-    private void directedFireballCollisionDetection(){
-        if (directedFireball != null){
-            if (player.hitBox.overlaps(directedFireball.hitBox)){
-                directedFireball.setCollision(true);
-                player.hitEnemy();
-            }
-        }
-    }
 
-    private void fireBallsCollisionDetection(FireBall fireBall){
-        if (player.hitBox.overlaps(fireBall.hitBox)){
-            fireBall.setCollision(true);
-            fireBall.hitPlayer();
-            player.hitEnemy();
-        }
-    }
 
-    private void pickupCollisionDetection(){
-        if (lifePickup != null){
-            if (player.hitBox.overlaps(lifePickup.hitBox)){
-                player.hitLifePickup();
-                lifePickup = null;
-            }
-        }
 
-    }
-
-    private void updatePlayerScore(){
-        if (TimeUtils.nanoTime() - scoreStartTime > TimeUtils.millisToNanos(2080 - FireBall.globalMovementSpeed)){
-            if (player.getScore() >= 999990){
-                state = State.GAMEWON;
-            } else {
-                player.setScore();
-            }
-            scoreStartTime = TimeUtils.nanoTime();
-        }
-    }
-
-    private void spawnLifePickup(){
-        if (lifePickup == null){
-            //int playerScoreCheck = (int)(player.getScore() / 1000);
-            int x = MathUtils.random(0, gw - LifePickup.width);
-            int y = MathUtils.random(gh - gh/2, gh - (gh/10 + LifePickup.height + 2));
-            //long temp = player.getScore() / (1000 * (LifePickup.timesSpawned + 1));
-            if (player.getScore() - lifePickupLastSpawnScore >= 1000){
-                lifePickup = new LifePickup(x, y);
-                //lifePickups.add(lifePickup);
-                lifePickupStartTime = TimeUtils.nanoTime();
-                lifePickupLastSpawnScore = player.getScore();
-            }
-        } else {
-            if (TimeUtils.nanoTime() - lifePickupStartTime > TimeUtils.millisToNanos(3750)){
-                lifePickup.setQuarterLifeReached(true);
-            }
-
-            if (TimeUtils.nanoTime() - lifePickupStartTime > TimeUtils.millisToNanos(5000)){
-                lifePickup = null;
-            }
-        }
-    }
 
     private void checkGameState(){
         checkGameWon();
