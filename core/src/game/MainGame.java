@@ -18,7 +18,6 @@ public class MainGame implements Screen {
     private Viewport viewport;
     private Player player;
     public static LifePickup lifePickup;
-//    private Array<LifePickup> lifePickups;
     private long lifePickupLastSpawnScore;
     private FireBall directedFireball;
     private Array<FireBall> fireBalls;
@@ -98,7 +97,7 @@ public class MainGame implements Screen {
 
     @Override
     public void hide() {
-
+        // Used for mobile
     }
 
     @Override
@@ -107,6 +106,7 @@ public class MainGame implements Screen {
         Assets.dispose();
     }
 
+    // Draw game objects
     private void draw(){
         // Clear the screen and set background color
         Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -172,17 +172,13 @@ public class MainGame implements Screen {
         myGame.batch.end();
     }
 
+    // Object Updates
     private void update(float delta){
         updateFireballs();
         updateDirectedFireBall();
         player.update(delta);
         updatePlayerScore();
-        spawnLifePickup();
-    }
-
-    private void checkCollisions(){
-        pickupCollisionDetection();
-        directedFireballCollisionDetection();
+        updateLifePickup();
     }
 
     private void updateFireballs(){
@@ -212,26 +208,23 @@ public class MainGame implements Screen {
         }
     }
 
-    private void spawnLifePickup(){
-        if (lifePickup == null){
-            int x = MathUtils.random(0, gw - LifePickup.width);
-            int y = MathUtils.random(gh - gh/2, gh - (gh/10 + LifePickup.height + 2));
-            if (player.getScore() - lifePickupLastSpawnScore >= 1000){
-                lifePickup = new LifePickup(x, y);
-                lifePickupStartTime = TimeUtils.nanoTime();
-                lifePickupLastSpawnScore = player.getScore();
-            }
-        } else {
+    private void updateLifePickup(){
+        spawnLifePickup();
+        if (lifePickup != null) {
             if (TimeUtils.nanoTime() - lifePickupStartTime > TimeUtils.millisToNanos(3750)){
                 lifePickup.setQuarterLifeReached(true);
             }
-
             if (TimeUtils.nanoTime() - lifePickupStartTime > TimeUtils.millisToNanos(5000)){
                 lifePickup = null;
             }
         }
     }
 
+    // Object Collisions
+    private void checkCollisions(){
+        pickupCollisionDetection();
+        directedFireballCollisionDetection();
+    }
 
     private void directedFireballCollisionDetection(){
         if (directedFireball != null){
@@ -282,6 +275,19 @@ public class MainGame implements Screen {
             }
             fireBall.hitBox.y -= FireBall.globalMovementSpeed * Gdx.graphics.getDeltaTime();
             if(fireBall.hitBox.y + FireBall.height < 0) iter.remove();
+        }
+    }
+
+    // Object Spawns
+    private void spawnLifePickup(){
+        if (lifePickup == null){
+            int x = MathUtils.random(0, gw - LifePickup.width);
+            int y = MathUtils.random(gh - gh/2, gh - (gh/10 + LifePickup.height + 2));
+            if (player.getScore() - lifePickupLastSpawnScore >= 1000){
+                lifePickup = new LifePickup(x, y);
+                lifePickupStartTime = TimeUtils.nanoTime();
+                lifePickupLastSpawnScore = player.getScore();
+            }
         }
     }
 
@@ -337,11 +343,7 @@ public class MainGame implements Screen {
         }
     }
 
-
-
-
-
-
+    //Game states
     private void checkGameState(){
         checkGameWon();
         checkGameOver();
