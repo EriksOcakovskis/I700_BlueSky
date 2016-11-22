@@ -19,7 +19,8 @@ public class MainGame implements Screen {
     private OrthographicCamera camera;
     private Viewport viewport;
     private Player player;
-    private static LifePickup lifePickup;
+    private LifePickup lifePickup;
+    private StarPickup starPickup;
     private long lifePickupLastSpawnScore;
     private FireBall directedFireball;
     private Array<FireBall> fireBalls;
@@ -27,6 +28,7 @@ public class MainGame implements Screen {
     private long scoreStartTime;
     private long directedFireBallStartTime;
     private long lifePickupStartTime;
+    private long starPickupStartTime;
     private int gw;
     private int gh;
     private static SimpleLogger myLog;
@@ -68,6 +70,7 @@ public class MainGame implements Screen {
 
         startTime = TimeUtils.nanoTime();
         directedFireBallStartTime = startTime;
+        starPickupStartTime = startTime;
         pauseMenu = new PauseMenu();
     }
 
@@ -158,6 +161,14 @@ public class MainGame implements Screen {
             }
         }
 
+        // Draw star pickup
+        if (starPickup != null){
+            myGame.batch.draw(
+                    Assets.starPickupImage, starPickup.hitBox.x, starPickup.hitBox.y,
+                    StarPickup.width, StarPickup.height
+            );
+        }
+
         // Draw payer
         float playerBatchX = player.hitBox.x - Player.boundariesX;
         float playerBatchY = player.hitBox.y;
@@ -202,6 +213,7 @@ public class MainGame implements Screen {
         player.update(delta);
         updatePlayerScore();
         updateLifePickup();
+        updateStarPickup();
     }
 
     private void updateFireballs(){
@@ -233,12 +245,21 @@ public class MainGame implements Screen {
 
     private void updateLifePickup(){
         spawnLifePickup();
-        if (lifePickup != null) {
+        if (lifePickup != null){
             if (TimeUtils.nanoTime() - lifePickupStartTime > TimeUtils.millisToNanos(3750)){
                 lifePickup.setQuarterLifeReached(true);
             }
             if (TimeUtils.nanoTime() - lifePickupStartTime > TimeUtils.millisToNanos(5000)){
                 lifePickup = null;
+            }
+        }
+    }
+
+    private void updateStarPickup(){
+        spawnStarPickup();
+        if (starPickup != null){
+            if (TimeUtils.nanoTime() - starPickupStartTime > TimeUtils.millisToNanos(5000)){
+                starPickup = null;
             }
         }
     }
@@ -273,7 +294,6 @@ public class MainGame implements Screen {
                 lifePickup = null;
             }
         }
-
     }
 
     private void allFireBallCollisionAndMovement(){
@@ -311,6 +331,18 @@ public class MainGame implements Screen {
                 lifePickupStartTime = TimeUtils.nanoTime();
                 lifePickupLastSpawnScore = player.getScore();
             }
+        }
+    }
+
+    private void spawnStarPickup(){
+        if (starPickup == null){
+            int x = MathUtils.random(0, gw - LifePickup.width);
+            int y = MathUtils.random(gh - gh/2, gh - (gh/10 + LifePickup.height + 2));
+            if(TimeUtils.nanoTime() - starPickupStartTime > TimeUtils.millisToNanos(20000)){
+                starPickup = new StarPickup(x, y);
+                starPickupStartTime = TimeUtils.nanoTime();
+            }
+
         }
     }
 
