@@ -2,6 +2,7 @@ package game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.utils.TimeUtils;
 
 /**
  * Created by eriks on 13/11/2016.
@@ -10,6 +11,8 @@ class Player extends BasicActor {
     private int life;
     private long score;
     private int bombPickup;
+    private boolean starPickupActive;
+    private long playerStarActiveTime;
 
     static final int width = BlueSky.GAME_WIDTH/40;
     static final int height = BlueSky.GAME_WIDTH/10;
@@ -25,6 +28,7 @@ class Player extends BasicActor {
         life = 3;
         score = -10;
         bombPickup = 0;
+        starPickupActive = false;
     }
 
     Player(int x, int y, int l){
@@ -32,6 +36,7 @@ class Player extends BasicActor {
         life = l;
         score = -10;
         bombPickup = 0;
+        starPickupActive = false;
     }
 
     void update(float delta){
@@ -124,5 +129,25 @@ class Player extends BasicActor {
 
     public void setLife(int l) {
         this.life += l;
+    }
+
+    public boolean isStarPickupActive() {
+        return starPickupActive;
+    }
+
+    public void setStarPickupActive(boolean starPickupActive) {
+        this.starPickupActive = starPickupActive;
+    }
+
+    public long getPlayerStarActiveTime() {
+        return playerStarActiveTime;
+    }
+
+    public void setPlayerStarActiveTime(long playerStarActiveTime) {
+        this.playerStarActiveTime = playerStarActiveTime;
+    }
+
+    public void setPlayerStarActiveTime() {
+        this.playerStarActiveTime = TimeUtils.nanoTime();;
     }
 }

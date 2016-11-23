@@ -194,10 +194,16 @@ public class MainGame implements Screen {
 
         // Draw player life
         myGame.batch.draw(Assets.lifeUiImage, gw/320, gh - gh/10, gw/10, gh/10);
-        Assets.font64.draw(myGame.batch, Integer.toString(player.getLife()), gw/10 + 6, gh - gh/40);
+        Assets.font64b.draw(myGame.batch, Integer.toString(player.getLife()), gw/10 + 6, gh - gh/40);
 
         //Draw score
-        Assets.font64.draw(myGame.batch, Long.toString(player.getScore()), gw/2 + 76, gh - gh/40);
+        if (player.isStarPickupActive()){
+            Assets.font64w.setColor(Color.YELLOW);
+            Assets.font64w.draw(myGame.batch, Long.toString(player.getScore()), gw/2 + 76, gh - gh/40);
+
+        } else {
+            Assets.font64b.draw(myGame.batch, Long.toString(player.getScore()), gw/2 + 76, gh - gh/40);
+        }
         myGame.batch.end();
     }
 
@@ -237,7 +243,16 @@ public class MainGame implements Screen {
             if (player.getScore() >= 999990){
                 gameState = State.GAMEWON;
             } else {
-                player.setScore();
+                if (player.isStarPickupActive()){
+                    long timeDif = TimeUtils.nanoTime() - player.getPlayerStarActiveTime();
+                    myLog.debug("Time since Star pickup: " + timeDif);
+                    if (timeDif > TimeUtils.millisToNanos(5000)){
+                        player.setStarPickupActive(false);
+                    }
+                    player.setScore(100);
+                } else {
+                    player.setScore();
+                }
             }
             scoreStartTime = TimeUtils.nanoTime();
         }
@@ -292,6 +307,14 @@ public class MainGame implements Screen {
             if (player.hitBox.overlaps(lifePickup.hitBox)){
                 player.hitLifePickup();
                 lifePickup = null;
+            }
+        }
+
+        if (starPickup != null){
+            if (player.hitBox.overlaps(starPickup.hitBox)){
+                player.setStarPickupActive(true);
+                player.setPlayerStarActiveTime();
+                starPickup = null;
             }
         }
     }
