@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.TimeUtils;
 /**
  * Created by eriks on 13/11/2016.
  */
-class Player extends BasicActor {
+public class Player extends BasicActor {
     private int life;
     private long score;
     private int bombPickup;

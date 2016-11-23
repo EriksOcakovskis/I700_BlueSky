@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import game.MenuScreens.GameOverMenu;
 import game.MenuScreens.PauseMenu;
 
 import java.util.Iterator;
@@ -33,6 +34,7 @@ public class MainGame implements Screen {
     private int gh;
     private static SimpleLogger myLog;
     private PauseMenu pauseMenu;
+    private GameOverMenu gameOverMenu;
     public static State gameState;
 
     public enum State
@@ -89,8 +91,9 @@ public class MainGame implements Screen {
             case RESUME:
                 gameState = State.RUNNING;
                 break;
-
             case GAMEOVER:
+                draw();
+                gameOverMenu.render(delta);
                 break;
             case GAMEWON:
                 break;
@@ -110,20 +113,26 @@ public class MainGame implements Screen {
 
     @Override
     public void pause() {
-        myLog.info("Pause menu entered via 'Pause' call");
-        gameState = State.PAUSE;
+        if (gameState != State.GAMEOVER) {
+            myLog.info("Pause menu entered via 'Pause' call");
+            gameState = State.PAUSE;
+        }
         //Save high score
     }
 
     @Override
     public void resume() {
-        gameState = State.PAUSE;
+        if (gameState != State.GAMEOVER) {
+            gameState = State.PAUSE;
+        }
     }
 
     @Override
     public void hide() {
-        myLog.info("Pause menu entered via 'Hide' call");
-        gameState = State.PAUSE;
+        if (gameState != State.GAMEOVER) {
+            myLog.info("Pause menu entered via 'Hide' call");
+            gameState = State.PAUSE;
+        }
     }
 
     @Override
@@ -209,11 +218,8 @@ public class MainGame implements Screen {
 
     // Object Updates
     private void update(float delta){
-        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
-            myLog.info("Escape button pressed on keyboard");
-            pause();
-            return;
-        }
+        checkGameOver();
+        checkGamePause();
         updateFireballs();
         updateDirectedFireBall();
         player.update(delta);
@@ -437,15 +443,19 @@ public class MainGame implements Screen {
 
     private void checkGameOver(){
         if (player.getLife() <= 0){
+            myLog.info("Game Over");
+            gameOverMenu = new GameOverMenu(myGame, player);
             gameState = State.GAMEOVER;
-        }
-        if (gameState == State.GAMEOVER){
-            // Game over screen
+            //return;
         }
     }
 
     private void checkGamePause(){
-
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
+            myLog.info("Escape button pressed on keyboard");
+            pause();
+            //return;
+        }
     }
 
     private void checkGameResume(){
