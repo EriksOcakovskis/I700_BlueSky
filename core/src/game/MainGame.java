@@ -26,9 +26,12 @@ public class MainGame implements Screen {
     private Array<FireBall> fireBalls;
     private PauseMenu pauseMenu;
     private GameOverMenu gameOverMenu;
+    private long globalTime;
+    private long pauseTime;
+    private long pauseDelta;
     private long lifePickupLastSpawnScore;
     private long globalFireBallMovementSpeed;
-    private long startTime;
+    private long fireBallSpeedIncStartTime;
     private long scoreStartTime;
     private long directedFireBallStartTime;
     private long lifePickupStartTime;
@@ -75,9 +78,7 @@ public class MainGame implements Screen {
 
         fireBallSpawnDistanceY = 140;
 
-        startTime = TimeUtils.nanoTime();
-        directedFireBallStartTime = startTime;
-        starPickupStartTime = startTime;
+        setTimers();
 
         pauseMenu = PauseMenu.getPauseMenue();
     }
@@ -225,6 +226,7 @@ public class MainGame implements Screen {
 
     // Object Updates
     private void update(float delta){
+        setGlobalTime();
         checkGameOver();
         checkGamePause();
         updateFireballs();
@@ -252,12 +254,12 @@ public class MainGame implements Screen {
     }
 
     private void updatePlayerScore(){
-        if (TimeUtils.nanoTime() - scoreStartTime > TimeUtils.millisToNanos(2080 - globalFireBallMovementSpeed)){
+        if (globalTime - scoreStartTime > TimeUtils.millisToNanos(2080 - globalFireBallMovementSpeed)){
             if (player.getScore() >= 999990){
                 gameState = State.GAMEWON;
             } else {
                 if (player.isStarPickupActive()){
-                    long timeDif = TimeUtils.nanoTime() - player.getPlayerStarActiveTime();
+                    long timeDif = globalTime - player.getPlayerStarActiveTime();
                     myLog.debug("Time since Star pickup: " + timeDif);
                     if (timeDif > TimeUtils.millisToNanos(5000)){
                         player.setStarPickupActive(false);
@@ -267,17 +269,17 @@ public class MainGame implements Screen {
                     player.setScore();
                 }
             }
-            scoreStartTime = TimeUtils.nanoTime();
+            scoreStartTime = globalTime;
         }
     }
 
     private void updateLifePickup(){
         spawnLifePickup();
         if (lifePickup != null){
-            if (TimeUtils.nanoTime() - lifePickupStartTime > TimeUtils.millisToNanos(3750)){
+            if (globalTime - lifePickupStartTime > TimeUtils.millisToNanos(3750)){
                 lifePickup.setQuarterLifeReached(true);
             }
-            if (TimeUtils.nanoTime() - lifePickupStartTime > TimeUtils.millisToNanos(5000)){
+            if (globalTime - lifePickupStartTime > TimeUtils.millisToNanos(5000)){
                 lifePickup = null;
             }
         }
@@ -286,7 +288,7 @@ public class MainGame implements Screen {
     private void updateStarPickup(){
         spawnStarPickup();
         if (starPickup != null){
-            if (TimeUtils.nanoTime() - starPickupStartTime > TimeUtils.millisToNanos(5000)){
+            if (globalTime - starPickupStartTime > TimeUtils.millisToNanos(5000)){
                 starPickup = null;
             }
         }
@@ -353,15 +355,17 @@ public class MainGame implements Screen {
     }
 
     private void allFireBallSpeedAndSpawnDistance(){
-        if (TimeUtils.nanoTime() - startTime > 500000000){
-            startTime = TimeUtils.nanoTime();
-            if (globalFireBallMovementSpeed < gh){
+        if (globalTime - fireBallSpeedIncStartTime > 500000000){
+            fireBallSpeedIncStartTime = globalTime;
+
+            if (globalFireBallMovementSpeed < gh) {
                 globalFireBallMovementSpeed += 10;
-                if (fireBallSpawnDistanceY > FireBall.height*3){
-                    fireBallSpawnDistanceY -= 4;
-                }
-                myLog.debug("Distance between Fireballs y: " + fireBallSpawnDistanceY);
             }
+
+            if (fireBallSpawnDistanceY > FireBall.height*3){
+                fireBallSpawnDistanceY -= 4;
+            }
+            myLog.debug("Distance between Fireballs y: " + fireBallSpawnDistanceY);
             myLog.debug("Fireball movement speed y: " + globalFireBallMovementSpeed);
         }
     }
@@ -373,7 +377,7 @@ public class MainGame implements Screen {
             int y = MathUtils.random(gh - gh/2, gh - (gh/10 + LifePickup.height + 2));
             if (player.getScore() - lifePickupLastSpawnScore >= 1000){
                 lifePickup = new LifePickup(x, y);
-                lifePickupStartTime = TimeUtils.nanoTime();
+                lifePickupStartTime = globalTime;
                 lifePickupLastSpawnScore = player.getScore();
             }
         }
@@ -383,9 +387,9 @@ public class MainGame implements Screen {
         if (starPickup == null){
             int x = MathUtils.random(0, gw - LifePickup.width);
             int y = MathUtils.random(gh - gh/2, gh - (gh/10 + LifePickup.height + 2));
-            if(TimeUtils.nanoTime() - starPickupStartTime > TimeUtils.millisToNanos(20000)){
+            if(globalTime - starPickupStartTime > TimeUtils.millisToNanos(20000)){
                 starPickup = new StarPickup(x, y);
-                starPickupStartTime = TimeUtils.nanoTime();
+                starPickupStartTime = globalTime;
             }
 
         }
@@ -434,11 +438,11 @@ public class MainGame implements Screen {
 
     private void spawnDirectedFireBall(){
         if (directedFireball == null){
-            if (TimeUtils.nanoTime() - directedFireBallStartTime > TimeUtils.millisToNanos(2000)){
+            if (globalTime - directedFireBallStartTime > TimeUtils.millisToNanos(2000)){
                 int x = (int)player.hitBox.x;
                 int y = BlueSky.GAME_HEIGHT;
                 directedFireball = new FireBall(x,y,gh/2);
-                directedFireBallStartTime = TimeUtils.nanoTime();
+                directedFireBallStartTime = globalTime;
             }
         }
     }
@@ -469,6 +473,7 @@ public class MainGame implements Screen {
     private void checkGamePause(){
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
             myLog.info("Escape button pressed on keyboard");
+            pauseTime = TimeUtils.nanoTime();
             pause();
             //return;
         }
@@ -477,5 +482,22 @@ public class MainGame implements Screen {
     private void checkGameResume(){
 
     }
-}
 
+    private void setTimers(){
+        setGlobalTime();
+        fireBallSpeedIncStartTime = globalTime;
+        directedFireBallStartTime = globalTime;
+        starPickupStartTime = globalTime;
+    }
+
+    private void setGlobalTime(){
+        if (pauseTime != 0) {
+            pauseDelta += TimeUtils.nanoTime() - pauseTime;
+        }
+        myLog.warn("pauseDelta is: " + pauseDelta);
+        myLog.warn("globalTime is: " + globalTime);
+        globalTime = TimeUtils.nanoTime() - pauseDelta;
+        pauseTime = 0;
+        myLog.warn("globalTime is: " + globalTime);
+    }
+}

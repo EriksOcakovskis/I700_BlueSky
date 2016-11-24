@@ -10,7 +10,6 @@ import com.badlogic.gdx.utils.TimeUtils;
 public class Player extends BasicActor {
     private int life;
     private long score;
-    private int bombPickup;
     private boolean starPickupActive;
     private long playerStarActiveTime;
 
@@ -27,7 +26,6 @@ public class Player extends BasicActor {
         super(x, y, width, height);
         life = 3;
         score = -10;
-        bombPickup = 0;
         starPickupActive = false;
     }
 
@@ -35,7 +33,6 @@ public class Player extends BasicActor {
         super(x, y, width, height);
         life = l;
         score = -10;
-        bombPickup = 0;
         starPickupActive = false;
     }
 
