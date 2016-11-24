@@ -160,7 +160,26 @@ public class MainGame implements Screen {
         myGame.batch.setProjectionMatrix(camera.combined);
 
         myGame.batch.begin();
+
+        // Draw background
         myGame.batch.draw(Assets.backgroundImage, 0, 0 , gw, gh);
+
+        // Draw fireballs
+        if (directedFireball != null){
+            myGame.batch.draw(
+                    Assets.fireBallImage, directedFireball.hitBox.x, directedFireball.hitBox.y,
+                    FireBall.textureWidth, FireBall.textureHeight
+            );
+        }
+
+        for(FireBall fireBall: fireBalls) {
+            myGame.batch.draw(
+                    Assets.fireBallImage, fireBall.hitBox.x, fireBall.hitBox.y,
+                    FireBall.textureWidth, FireBall.textureHeight
+            );
+        }
+
+        // Draw solid UI
         myGame.batch.draw(Assets.uiBackgroundImage, 0, gh-gh/10, gw, gh/10);
 
         // Draw life pickup
@@ -194,21 +213,6 @@ public class MainGame implements Screen {
                 Assets.playerImage, playerBatchX, playerBatchY,
                 Player.textureWidth, Player.textureHeight
         );
-
-        // Draw fireballs
-        if (directedFireball != null){
-            myGame.batch.draw(
-                    Assets.fireBallImage, directedFireball.hitBox.x, directedFireball.hitBox.y,
-                    FireBall.textureWidth, FireBall.textureHeight
-            );
-        }
-
-        for(FireBall fireBall: fireBalls) {
-            myGame.batch.draw(
-                    Assets.fireBallImage, fireBall.hitBox.x, fireBall.hitBox.y,
-                    FireBall.textureWidth, FireBall.textureHeight
-            );
-        }
 
         // Draw player life
         myGame.batch.draw(Assets.lifeUiImage, gw/320, gh - gh/10, gw/10, gh/10);
