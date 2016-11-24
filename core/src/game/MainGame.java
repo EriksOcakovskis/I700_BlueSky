@@ -184,7 +184,6 @@ public class MainGame implements Screen {
 
         // Draw life pickup
         if (lifePickup != null){
-            //LifePickup lifePickup = lifePickups.first();
             if (lifePickup.isQuarterLifeReached()){
                 myGame.batch.draw(
                         Assets.quarterLifePickupImage, lifePickup.hitBox.x, lifePickup.hitBox.y,
@@ -226,6 +225,11 @@ public class MainGame implements Screen {
         } else {
             Assets.font64b.draw(myGame.batch, Long.toString(player.getScore()), gw/2 + 76, gh - gh/40);
         }
+
+        if (gameState == State.PAUSE || gameState == State.GAMEOVER){
+            myGame.batch.draw(Assets.pauseImage, 0, 0 , gw, gh);
+        }
+
         myGame.batch.end();
     }
 

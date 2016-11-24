@@ -70,7 +70,7 @@ public class PauseMenu {
 
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.font = skin.getFont("Font64");
-        textButtonStyle.fontColor = Color.BLACK;
+        textButtonStyle.fontColor = Color.LIGHT_GRAY;
         textButtonStyle.overFontColor = Color.WHITE;
 
         skin.add("default", textButtonStyle);

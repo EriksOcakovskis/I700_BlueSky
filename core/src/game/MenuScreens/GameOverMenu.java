@@ -69,7 +69,7 @@ public class GameOverMenu {
 
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.font = skin.getFont("Font64");
-        textButtonStyle.fontColor = Color.BLACK;
+        textButtonStyle.fontColor = Color.LIGHT_GRAY;
         textButtonStyle.overFontColor = Color.WHITE;
 
         Label.LabelStyle LabelStyle = new Label.LabelStyle();
