@@ -22,10 +22,12 @@ public class MainGame implements Screen {
     private Player player;
     private LifePickup lifePickup;
     private StarPickup starPickup;
-    private long lifePickupLastSpawnScore;
-    private long globalFireBallMovementSpeed;
     private FireBall directedFireball;
     private Array<FireBall> fireBalls;
+    private PauseMenu pauseMenu;
+    private GameOverMenu gameOverMenu;
+    private long lifePickupLastSpawnScore;
+    private long globalFireBallMovementSpeed;
     private long startTime;
     private long scoreStartTime;
     private long directedFireBallStartTime;
@@ -35,8 +37,6 @@ public class MainGame implements Screen {
     private int gw;
     private int gh;
     private static SimpleLogger myLog;
-    private PauseMenu pauseMenu;
-    private GameOverMenu gameOverMenu;
     public static State gameState;
 
     public enum State
@@ -70,7 +70,6 @@ public class MainGame implements Screen {
 
         fireBalls = new Array<FireBall>();
         lifePickupLastSpawnScore = 0;
-        //lifePickups = new Array<LifePickup>();
 
         globalFireBallMovementSpeed = BlueSky.GAME_HEIGHT/8;
 
@@ -79,6 +78,7 @@ public class MainGame implements Screen {
         startTime = TimeUtils.nanoTime();
         directedFireBallStartTime = startTime;
         starPickupStartTime = startTime;
+
         pauseMenu = new PauseMenu();
     }
 
@@ -140,10 +140,6 @@ public class MainGame implements Screen {
     @Override
     public void hide() {
         // Called right before exit or changing screen
-//        if (gameState != State.GAMEOVER) {
-//            myLog.info("Pause menu entered via 'Hide' call");
-//            gameState = State.PAUSE;
-//        }
     }
 
     @Override

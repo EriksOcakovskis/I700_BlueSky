@@ -11,13 +11,10 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 class Assets {
     static Texture backgroundImage;
     static Texture uiBackgroundImage;
-    static Texture bombPickupImage;
     static Texture lifePickupImage;
     static Texture quarterLifePickupImage;
     static Texture starPickupImage;
-    static Texture bombUiImage;
     static Texture lifeUiImage;
-    static Texture bossImage;
     static Texture playerImage;
     static Texture fireBallImage;
     static Music backgroundMusic;
@@ -35,13 +32,10 @@ class Assets {
     static void load(){
         backgroundImage = loadTexture("background.png");
         uiBackgroundImage = loadTexture("ui.png");
-        bombPickupImage = loadTexture("bomb.png");
         lifePickupImage = loadTexture("heart.png");
         quarterLifePickupImage = loadTexture("heart_quarter.png");
         starPickupImage = loadTexture("star.png");
-        bombUiImage = loadTexture("bomb.png");
         lifeUiImage = loadTexture("life.png");
-        bossImage = loadTexture("boss.png");
         playerImage = loadTexture("plane.png");
         fireBallImage = loadTexture("fireball.png");
         backgroundMusic = loadMusic("undertreeinrain.mp3");
@@ -56,13 +50,10 @@ class Assets {
     static void dispose(){
         backgroundImage.dispose();
         uiBackgroundImage.dispose();
-        bombPickupImage.dispose();
         lifePickupImage.dispose();
         quarterLifePickupImage.dispose();
         starPickupImage.dispose();
-        bombUiImage.dispose();
         lifeUiImage.dispose();
-        bossImage.dispose();
         playerImage.dispose();
         fireBallImage.dispose();
         backgroundMusic.dispose();

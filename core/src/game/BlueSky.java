@@ -10,7 +10,7 @@ import game.MenuScreens.MainMenu;
 public class BlueSky extends Game {
     public static final int GAME_WIDTH = 640;
     public static final int GAME_HEIGHT = 640;
-    public static final double VERSION = 0.1;
+    public static final double VERSION = 0.2;
     SpriteBatch batch;
 
     private static SimpleLogger myLog = SimpleLogger.getLogger();

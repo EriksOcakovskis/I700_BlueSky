@@ -15,7 +15,7 @@ public class Player extends BasicActor {
     private long playerStarActiveTime;
 
     static final int width = BlueSky.GAME_WIDTH/40;
-    static final int height = BlueSky.GAME_WIDTH/10;
+    static final int height = BlueSky.GAME_HEIGHT/10;
     static final int textureWidth = BlueSky.GAME_WIDTH/10;
     static final int textureHeight = BlueSky.GAME_HEIGHT/10;
     static final int boundariesX = (textureWidth - width) / 2;
@@ -87,12 +87,12 @@ public class Player extends BasicActor {
         }
     }
 
-    void hitEnemy(){
-        this.life -= 1;
+    private void setLife(int l) {
+        this.life += l;
     }
 
-    void hitEnemy(int l){
-        this.life -= l;
+    void hitEnemy(){
+        this.life -= 1;
     }
 
     void hitLifePickup(){
@@ -103,51 +103,31 @@ public class Player extends BasicActor {
         return score;
     }
 
-    public void setScore() {
+    void setScore() {
         this.score += 10;
     }
 
-    public void setScore(int s) {
+    void setScore(int s) {
         this.score += s;
     }
 
-    public int getBombPickup() {
-        return bombPickup;
-    }
-
-    public void setBombPickup() {
-        this.bombPickup += 1;
-    }
-
-    public int getLife() {
+    int getLife() {
         return life;
     }
 
-    public void setLife() {
-        this.life += 1;
-    }
-
-    public void setLife(int l) {
-        this.life += l;
-    }
-
-    public boolean isStarPickupActive() {
+    boolean isStarPickupActive() {
         return starPickupActive;
     }
 
-    public void setStarPickupActive(boolean starPickupActive) {
+    void setStarPickupActive(boolean starPickupActive) {
         this.starPickupActive = starPickupActive;
     }
 
-    public long getPlayerStarActiveTime() {
+    long getPlayerStarActiveTime() {
         return playerStarActiveTime;
     }
 
-    public void setPlayerStarActiveTime(long playerStarActiveTime) {
-        this.playerStarActiveTime = playerStarActiveTime;
-    }
-
-    public void setPlayerStarActiveTime() {
+    void setPlayerStarActiveTime() {
         this.playerStarActiveTime = TimeUtils.nanoTime();;
     }
 }

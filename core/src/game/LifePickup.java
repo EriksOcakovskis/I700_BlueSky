@@ -1,12 +1,9 @@
 package game;
 
-import sun.applet.Main;
-
 /**
  * Created by eriks on 20/11/2016.
  */
 class LifePickup extends BasicActor {
-    boolean collision;
     private boolean quarterLifeReached;
 
     static final int width = BlueSky.GAME_WIDTH/10;
@@ -15,7 +12,6 @@ class LifePickup extends BasicActor {
 
     LifePickup(int x, int y){
         super(x, y, width, height);
-        this.collision = false;
         this.quarterLifeReached = false;
     }
 
