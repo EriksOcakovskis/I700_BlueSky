@@ -23,6 +23,7 @@ public class MainGame implements Screen {
     private LifePickup lifePickup;
     private StarPickup starPickup;
     private long lifePickupLastSpawnScore;
+    private long globalFireBallMovementSpeed;
     private FireBall directedFireball;
     private Array<FireBall> fireBalls;
     private long startTime;
@@ -30,6 +31,7 @@ public class MainGame implements Screen {
     private long directedFireBallStartTime;
     private long lifePickupStartTime;
     private long starPickupStartTime;
+    private int fireBallSpawnDistanceY;
     private int gw;
     private int gh;
     private static SimpleLogger myLog;
@@ -69,6 +71,10 @@ public class MainGame implements Screen {
         fireBalls = new Array<FireBall>();
         lifePickupLastSpawnScore = 0;
         //lifePickups = new Array<LifePickup>();
+
+        globalFireBallMovementSpeed = BlueSky.GAME_HEIGHT/8;
+
+        fireBallSpawnDistanceY = 140;
 
         startTime = TimeUtils.nanoTime();
         directedFireBallStartTime = startTime;
@@ -241,7 +247,7 @@ public class MainGame implements Screen {
 
     private void updateDirectedFireBall(){
         if (directedFireball != null){
-            float speed = (directedFireball.getMovementSpeed() + FireBall.globalMovementSpeed) * Gdx.graphics.getDeltaTime();
+            float speed = (directedFireball.getMovementSpeed() + globalFireBallMovementSpeed) * Gdx.graphics.getDeltaTime();
             directedFireball.hitBox.y -= speed;
             if (directedFireball.hitBox.y + FireBall.height < 0 || directedFireball.collided()){
                 directedFireball = null;
@@ -250,7 +256,7 @@ public class MainGame implements Screen {
     }
 
     private void updatePlayerScore(){
-        if (TimeUtils.nanoTime() - scoreStartTime > TimeUtils.millisToNanos(2080 - FireBall.globalMovementSpeed)){
+        if (TimeUtils.nanoTime() - scoreStartTime > TimeUtils.millisToNanos(2080 - globalFireBallMovementSpeed)){
             if (player.getScore() >= 999990){
                 gameState = State.GAMEWON;
             } else {
@@ -308,8 +314,9 @@ public class MainGame implements Screen {
     private void fireBallsCollisionDetection(FireBall fireBall){
         if (player.hitBox.overlaps(fireBall.hitBox)){
             fireBall.setCollision(true);
-            fireBall.hitPlayer();
             player.hitEnemy();
+            globalFireBallMovementSpeed = BlueSky.GAME_HEIGHT/8;
+            fireBallSpawnDistanceY = 140;
         }
     }
 
@@ -335,23 +342,31 @@ public class MainGame implements Screen {
         while(iter.hasNext()) {
             FireBall fireBall = iter.next();
             fireBallsCollisionDetection(fireBall);
+
             if (fireBall.collided()){
                 iter.remove();
-            } else {
-                if (TimeUtils.nanoTime() - startTime > 500000000){
-                    startTime = TimeUtils.nanoTime();
-                    if (FireBall.globalMovementSpeed < gh){
-                        FireBall.globalMovementSpeed += 10;
-                        if (FireBall.spawnDistanceY > FireBall.height*3){
-                            FireBall.spawnDistanceY -= 4;
-                        }
-                        myLog.debug("Distance between Fireballs y: " + FireBall.spawnDistanceY);
-                    }
-                    myLog.debug("Fireball movement speed y: " + FireBall.globalMovementSpeed);
-                }
             }
-            fireBall.hitBox.y -= FireBall.globalMovementSpeed * Gdx.graphics.getDeltaTime();
-            if(fireBall.hitBox.y + FireBall.height < 0) iter.remove();
+
+            fireBall.hitBox.y -= globalFireBallMovementSpeed * Gdx.graphics.getDeltaTime();
+
+            if(fireBall.hitBox.y + FireBall.height < 0){
+                iter.remove();
+            }
+        }
+        allFireBallSpeedAndSpawnDistance();
+    }
+
+    private void allFireBallSpeedAndSpawnDistance(){
+        if (TimeUtils.nanoTime() - startTime > 500000000){
+            startTime = TimeUtils.nanoTime();
+            if (globalFireBallMovementSpeed < gh){
+                globalFireBallMovementSpeed += 10;
+                if (fireBallSpawnDistanceY > FireBall.height*3){
+                    fireBallSpawnDistanceY -= 4;
+                }
+                myLog.debug("Distance between Fireballs y: " + fireBallSpawnDistanceY);
+            }
+            myLog.debug("Fireball movement speed y: " + globalFireBallMovementSpeed);
         }
     }
 
@@ -383,7 +398,7 @@ public class MainGame implements Screen {
     private void spawnFireBallsBasedOnY(){
         if (fireBalls != null && fireBalls.size != 0) {
             FireBall lastFireball = fireBalls.get(fireBalls.size - 1);
-            if (lastFireball.hitBox.y <= BlueSky.GAME_HEIGHT - FireBall.spawnDistanceY){
+            if (lastFireball.hitBox.y <= BlueSky.GAME_HEIGHT - fireBallSpawnDistanceY){
                 myLog.debug("last fireball y: " + lastFireball.hitBox.getY());
                 if (fireBalls != null && fireBalls.size > 1){
                     myLog.debug("second to lase last fireball y: " + fireBalls.get(fireBalls.size - 2).hitBox.getY());
@@ -467,3 +482,4 @@ public class MainGame implements Screen {
 
     }
 }
+
