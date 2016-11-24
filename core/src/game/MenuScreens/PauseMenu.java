@@ -24,10 +24,18 @@ public class PauseMenu {
     private OrthographicCamera camera;
     private Stage stage;
     private static SimpleLogger myLog = SimpleLogger.getLogger();
+    private static PauseMenu pauseMenu = null;
 
-    public PauseMenu() {
+    private PauseMenu() {
         camera = new OrthographicCamera();
         createUi();
+    }
+
+    public static PauseMenu getPauseMenue(){
+        if (pauseMenu == null){
+            pauseMenu = new PauseMenu();
+        }
+        return pauseMenu;
     }
 
     public void render(float delta) {

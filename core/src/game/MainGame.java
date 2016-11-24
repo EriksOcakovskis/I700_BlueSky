@@ -79,7 +79,7 @@ public class MainGame implements Screen {
         directedFireBallStartTime = startTime;
         starPickupStartTime = startTime;
 
-        pauseMenu = new PauseMenu();
+        pauseMenu = PauseMenu.getPauseMenue();
     }
 
     @Override

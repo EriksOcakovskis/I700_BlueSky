@@ -27,6 +27,7 @@ public class GameOverMenu {
     private Player player;
     private OrthographicCamera camera;
     private Stage stage;
+    private Skin skin;
     private static SimpleLogger myLog = SimpleLogger.getLogger();
 
     public GameOverMenu(final BlueSky g, Player p) {
@@ -43,6 +44,7 @@ public class GameOverMenu {
 
         if (Gdx.input.isKeyPressed(Input.Keys.ENTER)){
             myLog.info("Enter button pressed on keyboard");
+            dispose();
             myGame.setScreen(new MainGame(myGame));
         }
 
@@ -54,7 +56,6 @@ public class GameOverMenu {
     }
 
     private void createUi(){
-        Skin skin;
         Table table;
 
         skin = new Skin();
@@ -89,6 +90,7 @@ public class GameOverMenu {
         newGameButton.addListener(new ChangeListener() {
             public void changed (ChangeEvent event, Actor actor){
                 myLog.info("New Game UI button pressed");
+                dispose();
                 myGame.setScreen(new MainGame(myGame));
             }
         });
@@ -107,6 +109,11 @@ public class GameOverMenu {
         table.row();
         table.add(exitButton).padTop(10).padBottom(BlueSky.GAME_HEIGHT/2f);
         stage.addActor(table);
+    }
+
+    public void dispose(){
+        stage.dispose();
+        skin.dispose();
     }
 }
 
