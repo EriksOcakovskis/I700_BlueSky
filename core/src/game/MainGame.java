@@ -102,17 +102,20 @@ public class MainGame implements Screen {
 
     @Override
     public void show() {
+        // Called at the beginning
         Assets.backgroundMusic.play();
     }
 
     @Override
     public void resize(int width, int height) {
+        // Called in loop when resizing
         viewport.update(width, height);
         camera.position.set(camera.viewportWidth/2, camera.viewportHeight/2,0);
     }
 
     @Override
     public void pause() {
+        // Called when game is paused and right before exit
         if (gameState != State.GAMEOVER) {
             myLog.info("Pause menu entered via 'Pause' call");
             gameState = State.PAUSE;
@@ -122,6 +125,7 @@ public class MainGame implements Screen {
 
     @Override
     public void resume() {
+        // called when game came back from pause(), this is for mobile
         if (gameState != State.GAMEOVER) {
             gameState = State.PAUSE;
         }
@@ -129,15 +133,16 @@ public class MainGame implements Screen {
 
     @Override
     public void hide() {
-        if (gameState != State.GAMEOVER) {
-            myLog.info("Pause menu entered via 'Hide' call");
-            gameState = State.PAUSE;
-        }
+        // Called right before exit or changing screen
+//        if (gameState != State.GAMEOVER) {
+//            myLog.info("Pause menu entered via 'Hide' call");
+//            gameState = State.PAUSE;
+//        }
     }
 
     @Override
     public void dispose() {
-        myGame.dispose();
+
     }
 
     // Draw game objects
