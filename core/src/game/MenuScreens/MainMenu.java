@@ -125,6 +125,11 @@ public class MainMenu implements Screen {
         Label gameInfo = new Label("", skin);
         gameInfo.setText("V" + BlueSky.VERSION + " Eriks Ocakovskis C11");
         gameInfo.setFontScale(0.5f);
+
+        Label musicCredit = new Label("", skin);
+        musicCredit.setText("Music by: \"Shinray\"\n\"OverClocked ReMix (http://ocremix.org)\"");
+        musicCredit.setFontScale(0.3f);
+
         final TextButton newGameButton = new TextButton("New Game", skin);
         final TextButton exitButton = new TextButton("Exit", skin);
 
@@ -149,7 +154,9 @@ public class MainMenu implements Screen {
         table.row();
         table.add(exitButton).padTop(10);
         table.row();
-        table.add(gameInfo).padTop(BlueSky.GAME_HEIGHT/2.2f);
+        table.add(gameInfo).padTop(BlueSky.GAME_HEIGHT/2.6f);
+        table.row();
+        table.add(musicCredit).padTop(10);
         stage.addActor(table);
     }
 }

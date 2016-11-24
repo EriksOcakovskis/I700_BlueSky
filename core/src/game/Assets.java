@@ -38,13 +38,14 @@ class Assets {
         lifeUiImage = loadTexture("life.png");
         playerImage = loadTexture("plane.png");
         fireBallImage = loadTexture("fireball.png");
-        backgroundMusic = loadMusic("undertreeinrain.mp3");
+        backgroundMusic = loadMusic("Golden_Axe_2_Ravaged_Metal_OC_ReMix.mp3");
         font64b = new BitmapFont(Gdx.files.internal("fonts/font_64_b.fnt"), Gdx.files.internal("fonts/font_64_b.png"), false);
         font64w = new BitmapFont(Gdx.files.internal("fonts/font_64.fnt"), Gdx.files.internal("fonts/font_64.png"), false);
 //        font64b.setColor(Color.BLACK);
 
         // Loop the background music from beginning
         backgroundMusic.setLooping(true);
+        backgroundMusic.setVolume(0.5f);
     }
 
     static void dispose(){

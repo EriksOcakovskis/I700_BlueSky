@@ -227,6 +227,7 @@ public class MainGame implements Screen {
 
     // Object Updates
     private void update(float delta){
+        Assets.backgroundMusic.setVolume(0.5f);
         setGlobalTime();
         checkGameState();
         updateFireballs();
@@ -468,6 +469,7 @@ public class MainGame implements Screen {
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
             myLog.info("Escape button pressed on keyboard");
             pauseTime = TimeUtils.nanoTime();
+            Assets.backgroundMusic.setVolume(0);
             pause();
         }
     }
