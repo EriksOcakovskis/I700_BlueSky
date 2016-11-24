@@ -103,6 +103,7 @@ public class MainGame implements Screen {
                 gameOverMenu.render(delta);
                 break;
             case GAMEWON:
+                gameState = State.GAMEOVER;
                 break;
         }
     }
@@ -227,8 +228,7 @@ public class MainGame implements Screen {
     // Object Updates
     private void update(float delta){
         setGlobalTime();
-        checkGameOver();
-        checkGamePause();
+        checkGameState();
         updateFireballs();
         updateDirectedFireBall();
         player.update(delta);
@@ -255,19 +255,15 @@ public class MainGame implements Screen {
 
     private void updatePlayerScore(){
         if (globalTime - scoreStartTime > TimeUtils.millisToNanos(2080 - globalFireBallMovementSpeed)){
-            if (player.getScore() >= 999990){
-                gameState = State.GAMEWON;
-            } else {
-                if (player.isStarPickupActive()){
-                    long timeDif = globalTime - player.getPlayerStarActiveTime();
-                    myLog.debug("Time since Star pickup: " + timeDif);
-                    if (timeDif > TimeUtils.millisToNanos(5000)){
-                        player.setStarPickupActive(false);
-                    }
-                    player.setScore(100);
-                } else {
-                    player.setScore();
+            if (player.isStarPickupActive()){
+                long timeDif = globalTime - player.getPlayerStarActiveTime();
+                myLog.debug("Time since Star pickup: " + timeDif);
+                if (timeDif > TimeUtils.millisToNanos(5000)){
+                    player.setStarPickupActive(false);
                 }
+                player.setScore(100);
+            } else {
+                player.setScore();
             }
             scoreStartTime = globalTime;
         }
@@ -452,12 +448,11 @@ public class MainGame implements Screen {
         checkGameWon();
         checkGameOver();
         checkGamePause();
-        checkGameResume();
     }
 
     private void checkGameWon(){
-        if (gameState == State.GAMEWON){
-            // Win screen
+        if (player.getScore() >= 999990){
+            gameState = State.GAMEWON;
         }
     }
 
@@ -466,7 +461,6 @@ public class MainGame implements Screen {
             myLog.info("Game Over");
             gameOverMenu = new GameOverMenu(myGame, player);
             gameState = State.GAMEOVER;
-            //return;
         }
     }
 
@@ -475,12 +469,7 @@ public class MainGame implements Screen {
             myLog.info("Escape button pressed on keyboard");
             pauseTime = TimeUtils.nanoTime();
             pause();
-            //return;
         }
-    }
-
-    private void checkGameResume(){
-
     }
 
     private void setTimers(){
