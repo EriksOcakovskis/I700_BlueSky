@@ -12,6 +12,7 @@ class Assets {
     static Texture backgroundImage;
     static Texture uiBackgroundImage;
     static Texture pauseImage;
+    static Texture damageImage;
     static Texture lifePickupImage;
     static Texture quarterLifePickupImage;
     static Texture starPickupImage;
@@ -34,6 +35,7 @@ class Assets {
         backgroundImage = loadTexture("background.png");
         uiBackgroundImage = loadTexture("ui.png");
         pauseImage = loadTexture("pause.png");
+        damageImage = loadTexture("damage.png");
         lifePickupImage = loadTexture("heart.png");
         quarterLifePickupImage = loadTexture("heart_quarter.png");
         starPickupImage = loadTexture("star.png");
@@ -53,6 +55,8 @@ class Assets {
     static void dispose(){
         backgroundImage.dispose();
         uiBackgroundImage.dispose();
+        pauseImage.dispose();
+        damageImage.dispose();
         lifePickupImage.dispose();
         quarterLifePickupImage.dispose();
         starPickupImage.dispose();

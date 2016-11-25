@@ -10,8 +10,10 @@ import com.badlogic.gdx.utils.TimeUtils;
 public class Player extends BasicActor {
     private int life;
     private long score;
-    private boolean starPickupActive;
     private long playerStarActiveTime;
+    private long damageScreenActiveTime;
+    private boolean starPickupActive;
+    private boolean isHit;
 
     static final int width = BlueSky.GAME_WIDTH/40;
     static final int height = BlueSky.GAME_HEIGHT/10;
@@ -27,6 +29,7 @@ public class Player extends BasicActor {
         life = 3;
         score = -10;
         starPickupActive = false;
+        isHit = false;
     }
 
     Player(int x, int y, int l){
@@ -34,6 +37,7 @@ public class Player extends BasicActor {
         life = l;
         score = -10;
         starPickupActive = false;
+        isHit = false;
     }
 
     void update(float delta){
@@ -88,8 +92,10 @@ public class Player extends BasicActor {
         this.life += l;
     }
 
-    void hitEnemy(){
+    void hitEnemy(long t){
         this.life -= 1;
+        setHit(true);
+        setDamageScreenActiveTime(t);
     }
 
     void hitLifePickup(){
@@ -125,6 +131,22 @@ public class Player extends BasicActor {
     }
 
     void setPlayerStarActiveTime() {
-        this.playerStarActiveTime = TimeUtils.nanoTime();;
+        this.playerStarActiveTime = TimeUtils.nanoTime();
+    }
+
+    boolean isHit() {
+        return isHit;
+    }
+
+    void setHit(boolean hit) {
+        isHit = hit;
+    }
+
+    public long getDamageScreenActiveTime() {
+        return damageScreenActiveTime;
+    }
+
+    public void setDamageScreenActiveTime(long damageScreenActiveTime) {
+        this.damageScreenActiveTime = damageScreenActiveTime;
     }
 }

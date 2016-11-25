@@ -164,6 +164,15 @@ public class MainGame implements Screen {
         // Draw background
         myGame.batch.draw(Assets.backgroundImage, 0, 0 , gw, gh);
 
+        // Draw damage indicator
+        if (player.isHit() && player.getLife() > 0){
+            if (globalTime - player.getDamageScreenActiveTime() < TimeUtils.millisToNanos(100)){
+                myGame.batch.draw(Assets.damageImage, 0, 0 , gw, gh);
+            } else {
+                player.setHit(false);
+            }
+        }
+
         // Draw fireballs
         if (directedFireball != null){
             myGame.batch.draw(
@@ -309,7 +318,7 @@ public class MainGame implements Screen {
         if (directedFireball != null){
             if (player.hitBox.overlaps(directedFireball.hitBox)){
                 directedFireball.setCollision(true);
-                player.hitEnemy();
+                player.hitEnemy(globalTime);
             }
         }
     }
@@ -317,7 +326,7 @@ public class MainGame implements Screen {
     private void fireBallsCollisionDetection(FireBall fireBall){
         if (player.hitBox.overlaps(fireBall.hitBox)){
             fireBall.setCollision(true);
-            player.hitEnemy();
+            player.hitEnemy(globalTime);
             globalFireBallMovementSpeed = BlueSky.GAME_HEIGHT/8;
             fireBallSpawnDistanceY = 140;
         }
