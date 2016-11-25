@@ -39,6 +39,7 @@ public class SimpleLogger {
         this.logLevel = INFO;
     }
 
+    // Singleton instantiating
     public static SimpleLogger getLogger() {
         if (logger == null){
             logger = new SimpleLogger();
@@ -95,7 +96,7 @@ public class SimpleLogger {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         String strDate = sdf.format(date);
 
-        BufferedWriter textBuffer = null;
+        BufferedWriter textBuffer;
         boolean append = true;
 
         if (!file.exists()){
@@ -111,17 +112,11 @@ public class SimpleLogger {
         try{
             textBuffer = new BufferedWriter(new FileWriter(file,append));
             textBuffer.write(strDate + " " + logLevel + " " + input + "\n");
+            textBuffer.close();
         } catch (Exception e){
             System.out.println("Could not log to " + file.toString() + ", logging to std out");
             System.out.println(strDate + " " + logLevel + " " + input);
             e.printStackTrace();
-        } finally {
-            try{
-                textBuffer.close();
-            } catch (Exception e){
-                System.out.println("Could not close " + file.toString());
-                e.printStackTrace();
-            }
         }
     }
 }
