@@ -343,7 +343,7 @@ public class MainGame implements Screen {
         if (starPickup != null){
             if (player.hitBox.overlaps(starPickup.hitBox)){
                 player.setStarPickupActive(true);
-                player.setPlayerStarActiveTime();
+                player.setPlayerStarActiveTime(globalTime);
                 starPickup = null;
             }
         }

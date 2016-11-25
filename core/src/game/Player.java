@@ -130,8 +130,8 @@ public class Player extends BasicActor {
         return playerStarActiveTime;
     }
 
-    void setPlayerStarActiveTime() {
-        this.playerStarActiveTime = TimeUtils.nanoTime();
+    void setPlayerStarActiveTime(long playerStarActiveTime) {
+        this.playerStarActiveTime = playerStarActiveTime;
     }
 
     boolean isHit() {
@@ -142,11 +142,11 @@ public class Player extends BasicActor {
         isHit = hit;
     }
 
-    public long getDamageScreenActiveTime() {
+    long getDamageScreenActiveTime() {
         return damageScreenActiveTime;
     }
 
-    public void setDamageScreenActiveTime(long damageScreenActiveTime) {
+    void setDamageScreenActiveTime(long damageScreenActiveTime) {
         this.damageScreenActiveTime = damageScreenActiveTime;
     }
 }
