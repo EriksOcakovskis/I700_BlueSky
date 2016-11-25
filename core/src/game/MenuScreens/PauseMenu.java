@@ -23,19 +23,12 @@ import game.SimpleLogger;
 public class PauseMenu {
     private OrthographicCamera camera;
     private Stage stage;
+    private Skin skin;
     private static SimpleLogger myLog = SimpleLogger.getLogger();
-    private static PauseMenu pauseMenu = null;
 
-    private PauseMenu() {
+    public PauseMenu() {
         camera = new OrthographicCamera();
         createUi();
-    }
-
-    public static PauseMenu getPauseMenue(){
-        if (pauseMenu == null){
-            pauseMenu = new PauseMenu();
-        }
-        return pauseMenu;
     }
 
     public void render(float delta) {
@@ -56,7 +49,6 @@ public class PauseMenu {
     }
 
     private void createUi(){
-        Skin skin;
         Table table;
 
         skin = new Skin();
@@ -100,5 +92,10 @@ public class PauseMenu {
         table.row();
         table.add(exitButton).padTop(10).padBottom(BlueSky.GAME_HEIGHT/2f);
         stage.addActor(table);
+    }
+
+    public void dispose(){
+        stage.dispose();
+        skin.dispose();
     }
 }

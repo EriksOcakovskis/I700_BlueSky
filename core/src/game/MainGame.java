@@ -80,7 +80,7 @@ public class MainGame implements Screen {
 
         setTimers();
 
-        pauseMenu = PauseMenu.getPauseMenue();
+        pauseMenu = new PauseMenu();
     }
 
     @Override
@@ -478,6 +478,7 @@ public class MainGame implements Screen {
         if (player.getLife() <= 0){
             myLog.info("Game Over");
             gameOverMenu = new GameOverMenu(myGame, player);
+            pauseMenu.dispose();
             gameState = State.GAMEOVER;
         }
     }
