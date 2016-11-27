@@ -8,16 +8,24 @@ import game.MenuScreens.MainMenu;
  * Created by eriks on 26/10/2016.
  */
 public class BlueSky extends Game {
+
+    // Game world size in arbitrary scale, these are not pixels
     public static final int GAME_WIDTH = 640;
     public static final int GAME_HEIGHT = 640;
+
+    // Game version for global use
     public static final double VERSION = 0.2;
+
     SpriteBatch batch;
 
     private static SimpleLogger myLog = SimpleLogger.getLogger();
 
     public void create(){
         batch = new SpriteBatch();
+
+        // Pre-loading all the assets for the game
         Assets.load();
+
         myLog.setLogFile("BlueSky");
         myLog.setLogLevel(SimpleLogger.DEBUG);
         myLog.info("Starting...");

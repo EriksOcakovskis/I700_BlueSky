@@ -7,6 +7,14 @@ import com.badlogic.gdx.Input;
  * Created by eriks on 13/11/2016.
  */
 public class Player extends BaseActor {
+    public static final int WIDTH = BlueSky.GAME_WIDTH/40;
+    public static final int HEIGHT = BlueSky.GAME_HEIGHT/10;
+    public static final int TEXTURE_WIDTH = BlueSky.GAME_WIDTH/10;
+    public static final int TEXTURE_HEIGHT = BlueSky.GAME_HEIGHT/10;
+    public static final int BOUNDARIES_X = (TEXTURE_WIDTH - WIDTH) / 2;
+    public static final int BOUNDARIES_Y = BlueSky.GAME_HEIGHT/10 + 64;
+    private static final int MOVEMENT_SPEED = BlueSky.GAME_HEIGHT/2;
+
     private int life;
     private long score;
     private long playerStarActiveTime;
@@ -14,32 +22,23 @@ public class Player extends BaseActor {
     private boolean starPickupActive;
     private boolean isHit;
 
-    static final int width = BlueSky.GAME_WIDTH/40;
-    static final int height = BlueSky.GAME_HEIGHT/10;
-    static final int textureWidth = BlueSky.GAME_WIDTH/10;
-    static final int textureHeight = BlueSky.GAME_HEIGHT/10;
-    static final int boundariesX = (textureWidth - width) / 2;
-    static final int boundariesY = BlueSky.GAME_HEIGHT/10 + 64;
-    private static final int movementSpeed = BlueSky.GAME_HEIGHT/2;
-
-
-    Player(int x, int y){
-        super(x, y, width, height);
+    public Player(int x, int y){
+        super(x, y, WIDTH, HEIGHT);
         life = 3;
         score = -10;
         starPickupActive = false;
         isHit = false;
     }
 
-    Player(int x, int y, int l){
-        super(x, y, width, height);
+    public Player(int x, int y, int l){
+        super(x, y, WIDTH, HEIGHT);
         life = l;
         score = -10;
         starPickupActive = false;
         isHit = false;
     }
 
-    void update(float delta){
+    public void update(float delta){
         boolean right = Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D);
         boolean left = Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A);
         boolean up = Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W);
@@ -56,34 +55,34 @@ public class Player extends BaseActor {
     }
 
     private void movePlayerRight(float delta) {
-        hitBox.x += (int)(movementSpeed * delta);
+        hitBox.x += (int)(MOVEMENT_SPEED * delta);
         playerBoundaries();
     }
 
     private void movePlayerLeft(float delta) {
-        hitBox.x -= (int)(movementSpeed * delta);
+        hitBox.x -= (int)(MOVEMENT_SPEED * delta);
         playerBoundaries();
     }
 
     private void movePlayerUp(float delta) {
-        hitBox.y += (int)(movementSpeed * delta);
+        hitBox.y += (int)(MOVEMENT_SPEED * delta);
         playerBoundaries();
     }
 
     private void movePlayerDown(float delta) {
-        hitBox.y -= (int)(movementSpeed * delta);
+        hitBox.y -= (int)(MOVEMENT_SPEED * delta);
         playerBoundaries();
     }
 
     private void playerBoundaries(){
-        if(hitBox.x  - boundariesX < 0) {
-            hitBox.x = boundariesX;
-        } else if(hitBox.x > BlueSky.GAME_WIDTH - (boundariesX + width)) {
-            hitBox.x = BlueSky.GAME_WIDTH - (boundariesX + width);
+        if(hitBox.x  - BOUNDARIES_X < 0) {
+            hitBox.x = BOUNDARIES_X;
+        } else if(hitBox.x > BlueSky.GAME_WIDTH - (BOUNDARIES_X + WIDTH)) {
+            hitBox.x = BlueSky.GAME_WIDTH - (BOUNDARIES_X + WIDTH);
         } else if(hitBox.y < 0){
             hitBox.y = 0;
-        } else if(hitBox.y > BlueSky.GAME_HEIGHT - boundariesY){
-            hitBox.y = BlueSky.GAME_HEIGHT - boundariesY;
+        } else if(hitBox.y > BlueSky.GAME_HEIGHT - BOUNDARIES_Y){
+            hitBox.y = BlueSky.GAME_HEIGHT - BOUNDARIES_Y;
         }
     }
 
@@ -91,13 +90,13 @@ public class Player extends BaseActor {
         this.life += l;
     }
 
-    void hitEnemy(long t){
+    public void hitEnemy(long t){
         this.life -= 1;
         setHit(true);
         setDamageScreenActiveTime(t);
     }
 
-    void hitLifePickup(){
+    public void hitLifePickup(){
         this.setLife(1);
     }
 
@@ -105,47 +104,47 @@ public class Player extends BaseActor {
         return score;
     }
 
-    void setScore() {
+    public void setScore() {
         this.score += 10;
     }
 
-    void setScore(int s) {
+    public void setScore(int s) {
         this.score += s;
     }
 
-    int getLife() {
+    public int getLife() {
         return life;
     }
 
-    boolean isStarPickupActive() {
+    public boolean isStarPickupActive() {
         return starPickupActive;
     }
 
-    void setStarPickupActive(boolean starPickupActive) {
+    public void setStarPickupActive(boolean starPickupActive) {
         this.starPickupActive = starPickupActive;
     }
 
-    long getPlayerStarActiveTime() {
+    public long getPlayerStarActiveTime() {
         return playerStarActiveTime;
     }
 
-    void setPlayerStarActiveTime(long playerStarActiveTime) {
+    public void setPlayerStarActiveTime(long playerStarActiveTime) {
         this.playerStarActiveTime = playerStarActiveTime;
     }
 
-    boolean isHit() {
+    public boolean isHit() {
         return isHit;
     }
 
-    void setHit(boolean hit) {
+    public void setHit(boolean hit) {
         isHit = hit;
     }
 
-    long getDamageScreenActiveTime() {
+    public long getDamageScreenActiveTime() {
         return damageScreenActiveTime;
     }
 
-    void setDamageScreenActiveTime(long damageScreenActiveTime) {
+    public void setDamageScreenActiveTime(long damageScreenActiveTime) {
         this.damageScreenActiveTime = damageScreenActiveTime;
     }
 }

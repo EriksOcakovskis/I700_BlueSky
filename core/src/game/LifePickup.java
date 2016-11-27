@@ -3,23 +3,22 @@ package game;
 /**
  * Created by eriks on 20/11/2016.
  */
-class LifePickup extends BaseActor {
+public class LifePickup extends BaseActor {
+    public static final int WIDTH = BlueSky.GAME_WIDTH/10;
+    public static final int HEIGHT = BlueSky.GAME_WIDTH/10;
+
     private boolean quarterLifeReached;
 
-    static final int width = BlueSky.GAME_WIDTH/10;
-    static final int height = BlueSky.GAME_WIDTH/10;
-
-
-    LifePickup(int x, int y){
-        super(x, y, width, height);
+    public LifePickup(int x, int y){
+        super(x, y, WIDTH, HEIGHT);
         this.quarterLifeReached = false;
     }
 
-    boolean isQuarterLifeReached() {
+    public boolean isQuarterLifeReached() {
         return quarterLifeReached;
     }
 
-    void setQuarterLifeReached(boolean quarterLifeReached) {
+    public void setQuarterLifeReached(boolean quarterLifeReached) {
         this.quarterLifeReached = quarterLifeReached;
     }
 }

@@ -15,7 +15,7 @@ import game.MenuScreens.PauseMenu;
 import java.util.Iterator;
 
 public class MainGame implements Screen {
-    private final BlueSky myGame;
+    private final BlueSky blueSky;
 
     private OrthographicCamera camera;
     private Viewport viewport;
@@ -40,6 +40,7 @@ public class MainGame implements Screen {
     private int gw;
     private int gh;
     private static SimpleLogger myLog;
+
     public static State gameState;
 
     public enum State
@@ -47,12 +48,12 @@ public class MainGame implements Screen {
         RUNNING,
         PAUSE,
         RESUME,
-        GAMEOVER,
-        GAMEWON
+        GAME_OVER,
+        GAME_WON
     }
 
     public MainGame(final BlueSky game) {
-        myGame = game;
+        blueSky = game;
         myLog = SimpleLogger.getLogger();
 
         gameState = State.RUNNING;
@@ -61,17 +62,16 @@ public class MainGame implements Screen {
         gh = BlueSky.GAME_HEIGHT;
 
         camera = new OrthographicCamera();
-        viewport = new FitViewport(gw, gh, camera);
 
+        viewport = new FitViewport(gw, gh, camera);
         viewport.apply();
 
         camera.position.set(camera.viewportWidth/2, camera.viewportHeight/2,0);
 
-        player = new Player(gw/2, Player.textureHeight / 2);
-        myLog.debug("Player hit box x location: " + player.hitBox.x );
-        myLog.debug("Player hit box y location: " + player.hitBox.y );
+        player = new Player(gw/2, Player.TEXTURE_HEIGHT / 2);
 
         fireBalls = new Array<FireBall>();
+
         lifePickupLastSpawnScore = 0;
 
         globalFireBallMovementSpeed = BlueSky.GAME_HEIGHT/8;
@@ -80,6 +80,7 @@ public class MainGame implements Screen {
 
         setTimers();
 
+        // Creating pause menu when creating a game, we expect it to be used in the future
         pauseMenu = new PauseMenu();
     }
 
@@ -98,12 +99,12 @@ public class MainGame implements Screen {
             case RESUME:
                 gameState = State.RUNNING;
                 break;
-            case GAMEOVER:
+            case GAME_OVER:
                 draw();
                 gameOverMenu.render(delta);
                 break;
-            case GAMEWON:
-                gameState = State.GAMEOVER;
+            case GAME_WON:
+                gameState = State.GAME_OVER;
                 break;
         }
     }
@@ -124,29 +125,28 @@ public class MainGame implements Screen {
     @Override
     public void pause() {
         // Called when game is paused and right before exit
-        if (gameState != State.GAMEOVER) {
+        if (gameState != State.GAME_OVER) {
             myLog.info("Pause menu entered via 'Pause' call");
             gameState = State.PAUSE;
         }
-        //Save high score
     }
 
     @Override
     public void resume() {
         // called when game came back from pause(), this is for mobile
-        if (gameState != State.GAMEOVER) {
+        if (gameState != State.GAME_OVER) {
             gameState = State.PAUSE;
         }
     }
 
     @Override
     public void hide() {
-        // Called right before exit or changing screen
+        // Called right before exit or changing screen, since we don't change screen it is empty
     }
 
     @Override
     public void dispose() {
-
+        // Nothing to dispose of, all is done in BlueSky class
     }
 
     // Draw game objects
@@ -157,17 +157,17 @@ public class MainGame implements Screen {
 
         camera.update();
 
-        myGame.batch.setProjectionMatrix(camera.combined);
+        blueSky.batch.setProjectionMatrix(camera.combined);
 
-        myGame.batch.begin();
+        blueSky.batch.begin();
 
         // Draw background
-        myGame.batch.draw(Assets.backgroundImage, 0, 0 , gw, gh);
+        blueSky.batch.draw(Assets.backgroundImage, 0, 0 , gw, gh);
 
         // Draw damage indicator
         if (player.isHit() && player.getLife() > 0){
             if (globalTime - player.getDamageScreenActiveTime() < TimeUtils.millisToNanos(100)){
-                myGame.batch.draw(Assets.damageImage, 0, 0 , gw, gh);
+                blueSky.batch.draw(Assets.damageImage, 0, 0 , gw, gh);
             } else {
                 player.setHit(false);
             }
@@ -175,71 +175,70 @@ public class MainGame implements Screen {
 
         // Draw fireballs
         if (directedFireball != null){
-            myGame.batch.draw(
+            blueSky.batch.draw(
                     Assets.fireBallImage, directedFireball.hitBox.x, directedFireball.hitBox.y,
-                    FireBall.textureWidth, FireBall.textureHeight
+                    FireBall.TEXTURE_WIDTH, FireBall.TEXTURE_HEIGHT
             );
         }
-
         for(FireBall fireBall: fireBalls) {
-            myGame.batch.draw(
+            blueSky.batch.draw(
                     Assets.fireBallImage, fireBall.hitBox.x, fireBall.hitBox.y,
-                    FireBall.textureWidth, FireBall.textureHeight
+                    FireBall.TEXTURE_WIDTH, FireBall.TEXTURE_HEIGHT
             );
         }
 
         // Draw solid UI
-        myGame.batch.draw(Assets.uiBackgroundImage, 0, gh-gh/10, gw, gh/10);
+        blueSky.batch.draw(Assets.uiBackgroundImage, 0, gh-gh/10, gw, gh/10);
 
         // Draw life pickup
         if (lifePickup != null){
             if (lifePickup.isQuarterLifeReached()){
-                myGame.batch.draw(
+                blueSky.batch.draw(
                         Assets.quarterLifePickupImage, lifePickup.hitBox.x, lifePickup.hitBox.y,
-                        LifePickup.width, LifePickup.height
+                        LifePickup.WIDTH, LifePickup.HEIGHT
                 );
             } else {
-                myGame.batch.draw(
+                blueSky.batch.draw(
                         Assets.lifePickupImage, lifePickup.hitBox.x, lifePickup.hitBox.y,
-                        LifePickup.width, LifePickup.height
+                        LifePickup.WIDTH, LifePickup.HEIGHT
                 );
             }
         }
 
         // Draw star pickup
         if (starPickup != null){
-            myGame.batch.draw(
+            blueSky.batch.draw(
                     Assets.starPickupImage, starPickup.hitBox.x, starPickup.hitBox.y,
                     StarPickup.width, StarPickup.height
             );
         }
 
         // Draw payer
-        float playerBatchX = player.hitBox.x - Player.boundariesX;
+        float playerBatchX = player.hitBox.x - Player.BOUNDARIES_X;
         float playerBatchY = player.hitBox.y;
-        myGame.batch.draw(
+        blueSky.batch.draw(
                 Assets.playerImage, playerBatchX, playerBatchY,
-                Player.textureWidth, Player.textureHeight
+                Player.TEXTURE_WIDTH, Player.TEXTURE_HEIGHT
         );
 
         // Draw player life
-        myGame.batch.draw(Assets.lifeUiImage, gw/320, gh - gh/10, gw/10, gh/10);
-        Assets.font64b.draw(myGame.batch, Integer.toString(player.getLife()), gw/10 + 6, gh - gh/40);
+        blueSky.batch.draw(Assets.lifeUiImage, gw/320, gh - gh/10, gw/10, gh/10);
+        Assets.font64b.draw(blueSky.batch, Integer.toString(player.getLife()), gw/10 + 6, gh - gh/40);
 
         //Draw score
         if (player.isStarPickupActive()){
             Assets.font64w.setColor(Color.YELLOW);
-            Assets.font64w.draw(myGame.batch, Long.toString(player.getScore()), gw/2 + 76, gh - gh/40);
-
+            Assets.font64w.draw(blueSky.batch, Long.toString(player.getScore()), gw/2 + 76, gh - gh/40);
         } else {
-            Assets.font64b.draw(myGame.batch, Long.toString(player.getScore()), gw/2 + 76, gh - gh/40);
+            Assets.font64b.draw(blueSky.batch, Long.toString(player.getScore()), gw/2 + 76, gh - gh/40);
         }
 
-        if (gameState == State.PAUSE || gameState == State.GAMEOVER){
-            myGame.batch.draw(Assets.pauseImage, 0, 0 , gw, gh);
+        // Draw pause menu background
+        if (gameState == State.PAUSE || gameState == State.GAME_OVER){
+            blueSky.batch.draw(Assets.pauseImage, 0, 0 , gw, gh);
         }
 
-        myGame.batch.end();
+        blueSky.batch.end();
     }
 
     // Object Updates
@@ -265,7 +264,7 @@ public class MainGame implements Screen {
         if (directedFireball != null){
             float speed = (directedFireball.getMovementSpeed() + globalFireBallMovementSpeed) * Gdx.graphics.getDeltaTime();
             directedFireball.hitBox.y -= speed;
-            if (directedFireball.hitBox.y + FireBall.height < 0 || directedFireball.collided()){
+            if (directedFireball.hitBox.y + FireBall.HEIGHT < 0 || directedFireball.collided()){
                 directedFireball = null;
             }
         }
@@ -275,7 +274,7 @@ public class MainGame implements Screen {
         if (globalTime - scoreStartTime > TimeUtils.millisToNanos(2080 - globalFireBallMovementSpeed)){
             if (player.isStarPickupActive()){
                 long timeDif = globalTime - player.getPlayerStarActiveTime();
-                myLog.debug("Time since Star pickup: " + timeDif);
+
                 if (timeDif > TimeUtils.millisToNanos(5000)){
                     player.setStarPickupActive(false);
                 }
@@ -361,7 +360,7 @@ public class MainGame implements Screen {
 
             fireBall.hitBox.y -= globalFireBallMovementSpeed * Gdx.graphics.getDeltaTime();
 
-            if(fireBall.hitBox.y + FireBall.height < 0){
+            if(fireBall.hitBox.y + FireBall.HEIGHT < 0){
                 iter.remove();
             }
         }
@@ -376,19 +375,17 @@ public class MainGame implements Screen {
                 globalFireBallMovementSpeed += 10;
             }
 
-            if (fireBallSpawnDistanceY > FireBall.height*3){
+            if (fireBallSpawnDistanceY > FireBall.HEIGHT *3){
                 fireBallSpawnDistanceY -= 4;
             }
-            myLog.debug("Distance between Fireballs y: " + fireBallSpawnDistanceY);
-            myLog.debug("Fireball movement speed y: " + globalFireBallMovementSpeed);
         }
     }
 
     // Object Spawns
     private void spawnLifePickup(){
         if (lifePickup == null){
-            int x = MathUtils.random(0, gw - LifePickup.width);
-            int y = MathUtils.random(gh - gh/2, gh - (gh/10 + LifePickup.height + 2));
+            int x = MathUtils.random(0, gw - LifePickup.WIDTH);
+            int y = MathUtils.random(gh - gh/2, gh - (gh/10 + LifePickup.HEIGHT + 2));
             if (player.getScore() - lifePickupLastSpawnScore >= 1000){
                 lifePickup = new LifePickup(x, y);
                 lifePickupStartTime = globalTime;
@@ -399,13 +396,12 @@ public class MainGame implements Screen {
 
     private void spawnStarPickup(){
         if (starPickup == null){
-            int x = MathUtils.random(0, gw - LifePickup.width);
-            int y = MathUtils.random(gh - gh/2, gh - (gh/10 + LifePickup.height + 2));
+            int x = MathUtils.random(0, gw - LifePickup.WIDTH);
+            int y = MathUtils.random(gh - gh/2, gh - (gh/10 + LifePickup.HEIGHT + 2));
             if(globalTime - starPickupStartTime > TimeUtils.millisToNanos(20000)){
                 starPickup = new StarPickup(x, y);
                 starPickupStartTime = globalTime;
             }
-
         }
     }
 
@@ -413,10 +409,6 @@ public class MainGame implements Screen {
         if (fireBalls != null && fireBalls.size != 0) {
             FireBall lastFireball = fireBalls.get(fireBalls.size - 1);
             if (lastFireball.hitBox.y <= BlueSky.GAME_HEIGHT - fireBallSpawnDistanceY){
-                myLog.debug("last fireball y: " + lastFireball.hitBox.getY());
-                if (fireBalls != null && fireBalls.size > 1){
-                    myLog.debug("second to lase last fireball y: " + fireBalls.get(fireBalls.size - 2).hitBox.getY());
-                }
                 spawnFireBall(lastFireball);
             }
         } else {
@@ -425,7 +417,7 @@ public class MainGame implements Screen {
     }
 
     private void spawnFireBall(){
-        int x = MathUtils.random(FireBall.textureWidth, BlueSky.GAME_WIDTH - FireBall.textureWidth);
+        int x = MathUtils.random(FireBall.TEXTURE_WIDTH, BlueSky.GAME_WIDTH - FireBall.TEXTURE_WIDTH);
         int y = BlueSky.GAME_HEIGHT;
         FireBall fireBall = new FireBall(x, y);
         fireBalls.add(fireBall);
@@ -435,15 +427,11 @@ public class MainGame implements Screen {
         int x;
         int y;
 
-        myLog.debug("last fireball x: " + lastFireball.hitBox.x);
-
         if (lastFireball.hitBox.x < BlueSky.GAME_WIDTH / 2) {
-            x = MathUtils.random(BlueSky.GAME_WIDTH / 2, BlueSky.GAME_WIDTH - FireBall.textureWidth);
+            x = MathUtils.random(BlueSky.GAME_WIDTH / 2, BlueSky.GAME_WIDTH - FireBall.TEXTURE_WIDTH);
         } else {
-            x = MathUtils.random(FireBall.textureWidth, BlueSky.GAME_WIDTH / 2);
+            x = MathUtils.random(FireBall.TEXTURE_WIDTH, BlueSky.GAME_WIDTH / 2);
         }
-
-        myLog.debug("Spawning fireball at x: " + x);
 
         y = BlueSky.GAME_HEIGHT;
         FireBall fireBall = new FireBall(x, y);
@@ -470,16 +458,17 @@ public class MainGame implements Screen {
 
     private void checkGameWon(){
         if (player.getScore() >= 999990){
-            gameState = State.GAMEWON;
+            myLog.info("Game Won");
+            gameState = State.GAME_WON;
         }
     }
 
     private void checkGameOver(){
         if (player.getLife() <= 0){
             myLog.info("Game Over");
-            gameOverMenu = new GameOverMenu(myGame, player);
+            gameOverMenu = new GameOverMenu(blueSky, player);
             pauseMenu.dispose();
-            gameState = State.GAMEOVER;
+            gameState = State.GAME_OVER;
         }
     }
 
@@ -503,10 +492,7 @@ public class MainGame implements Screen {
         if (pauseTime != 0) {
             pauseDelta += TimeUtils.nanoTime() - pauseTime;
         }
-        myLog.warn("pauseDelta is: " + pauseDelta);
-        myLog.warn("globalTime is: " + globalTime);
         globalTime = TimeUtils.nanoTime() - pauseDelta;
         pauseTime = 0;
-        myLog.warn("globalTime is: " + globalTime);
     }
 }
