@@ -19,7 +19,7 @@ public class BlueSky extends Game {
     public static final int GAME_HEIGHT = 640;
 
     // Game version for global use
-    public static final double VERSION = 0.2;
+    public static final double VERSION = 0.3;
 
     SpriteBatch batch;
 
