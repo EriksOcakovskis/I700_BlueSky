@@ -19,7 +19,7 @@ allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
 
-    version = "0.2-build-" + getDate()
+    version = "0.3-build-" + getDate()
     ext {
         appName = "BlueSky"
         gdxVersion = '1.9.4'
