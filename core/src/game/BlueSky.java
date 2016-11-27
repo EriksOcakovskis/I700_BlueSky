@@ -35,7 +35,7 @@ public class BlueSky extends Game {
         Assets.load();
 
         myLog.setLogFile("BlueSky");
-        myLog.setLogLevel(SimpleLogger.DEBUG);
+        myLog.setLogLevel(SimpleLogger.INFO);
         myLog.info("Starting...");
         this.setScreen(new MainMenu(this));
     }
