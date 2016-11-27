@@ -14,6 +14,9 @@ import game.MenuScreens.PauseMenu;
 
 import java.util.Iterator;
 
+/**
+ * Main game logic and drawing, implements {@link Screen}.
+ */
 public class MainGame implements Screen {
     private final BlueSky blueSky;
 
@@ -52,6 +55,10 @@ public class MainGame implements Screen {
         GAME_WON
     }
 
+    /**
+     * Creates the game {@link Screen}.
+     * @param game requires {@link BlueSky} instance
+     */
     public MainGame(final BlueSky game) {
         blueSky = game;
         myLog = SimpleLogger.getLogger();
@@ -149,7 +156,12 @@ public class MainGame implements Screen {
         // Nothing to dispose of, all is done in BlueSky class
     }
 
-    // Draw game objects
+    /**
+     * Draws all the game object {@link com.badlogic.gdx.graphics.g2d.SpriteBatch}, uses {@link Assets}
+     *
+     * TODO Place some of the drawing in to their respective classes.
+     *
+     */
     private void draw(){
         // Clear the screen and set background color
         Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -242,6 +254,12 @@ public class MainGame implements Screen {
     }
 
     // Object Updates
+
+    /**
+     * All the updates are placed here, also contains music volume.
+     * When game returns from pause volume is set here.
+     * @param delta frame delta time
+     */
     private void update(float delta){
         Assets.backgroundMusic.setVolume(0.5f);
         setGlobalTime();
@@ -254,12 +272,18 @@ public class MainGame implements Screen {
         updateStarPickup();
     }
 
+    /**
+     * All the fire ball updates are placed here.
+     */
     private void updateFireballs(){
         spawnDirectedFireBall();
         spawnFireBallsBasedOnY();
         allFireBallCollisionAndMovement();
     }
 
+    /**
+     * Updates directed fireballs x and y x coordinates or destroys it.
+     */
     private void updateDirectedFireBall(){
         if (directedFireball != null){
             float speed = (directedFireball.getMovementSpeed() + globalFireBallMovementSpeed) * Gdx.graphics.getDeltaTime();
@@ -270,6 +294,11 @@ public class MainGame implements Screen {
         }
     }
 
+    /**
+     * Updates player score according to {@link MainGame#scoreStartTime},
+     * {@link MainGame#globalFireBallMovementSpeed}
+     * and {@link Player#starPickupActive}
+     */
     private void updatePlayerScore(){
         if (globalTime - scoreStartTime > TimeUtils.millisToNanos(2080 - globalFireBallMovementSpeed)){
             if (player.isStarPickupActive()){
@@ -287,6 +316,9 @@ public class MainGame implements Screen {
         }
     }
 
+    /**
+     * Updates life pickup, sets {@link LifePickup#quarterLifeReached} or destroys it.
+     */
     private void updateLifePickup(){
         spawnLifePickup();
         if (lifePickup != null){
@@ -299,6 +331,9 @@ public class MainGame implements Screen {
         }
     }
 
+    /**
+     * Updates star pickup, destroys it if necessary.
+     */
     private void updateStarPickup(){
         spawnStarPickup();
         if (starPickup != null){
@@ -309,11 +344,18 @@ public class MainGame implements Screen {
     }
 
     // Object Collisions
+
+    /**
+     * All collisions are placed here
+     */
     private void checkCollisions(){
         pickupCollisionDetection();
         directedFireballCollisionDetection();
     }
 
+    /**
+     * Check if directed {@link FireBall} has hit {@link Player}
+     */
     private void directedFireballCollisionDetection(){
         if (directedFireball != null){
             if (player.hitBox.overlaps(directedFireball.hitBox)){
@@ -323,6 +365,11 @@ public class MainGame implements Screen {
         }
     }
 
+    /**
+     * Checks if {@link FireBall} has hit {@link Player}.
+     * This triggers global {@link FireBall} movement speed and spawn distance reset
+     * @param fireBall requires {@link FireBall}
+     */
     private void fireBallsCollisionDetection(FireBall fireBall){
         if (player.hitBox.overlaps(fireBall.hitBox)){
             fireBall.setCollision(true);
@@ -332,6 +379,9 @@ public class MainGame implements Screen {
         }
     }
 
+    /**
+     * All beneficial pickup collision with {@link Player}
+     */
     private void pickupCollisionDetection(){
         if (lifePickup != null){
             if (player.hitBox.overlaps(lifePickup.hitBox)){
@@ -349,6 +399,11 @@ public class MainGame implements Screen {
         }
     }
 
+    /**
+     * {@link FireBall} {@link Array} is iterated here.
+     * {@link MainGame#fireBallsCollisionDetection} and {@link MainGame#allFireBallSpeedAndSpawnDistance} is called.
+     * x and y coordinates are updated depending on {@link MainGame#globalFireBallMovementSpeed}.
+     */
     private void allFireBallCollisionAndMovement(){
         Iterator<FireBall> iter = fireBalls.iterator();
         while(iter.hasNext()) {
@@ -368,6 +423,9 @@ public class MainGame implements Screen {
         allFireBallSpeedAndSpawnDistance();
     }
 
+    /**
+     * Increases fireball speed and decreases spawn y distance every half a second.
+     */
     private void allFireBallSpeedAndSpawnDistance(){
         if (globalTime - fireBallSpeedIncStartTime > 500000000){
             fireBallSpeedIncStartTime = globalTime;
@@ -383,6 +441,10 @@ public class MainGame implements Screen {
     }
 
     // Object Spawns
+
+    /**
+     * Spawns a {@link LifePickup} every 1000 points in a random location on top half of the screen.
+     */
     private void spawnLifePickup(){
         if (lifePickup == null){
             int x = MathUtils.random(0, gw - LifePickup.WIDTH);
@@ -395,6 +457,9 @@ public class MainGame implements Screen {
         }
     }
 
+    /**
+     * Spawns a {@link StarPickup} every 10 seconds in a random location on top half of the screen.
+     */
     private void spawnStarPickup(){
         if (starPickup == null){
             int x = MathUtils.random(0, gw - LifePickup.WIDTH);
@@ -406,6 +471,9 @@ public class MainGame implements Screen {
         }
     }
 
+    /**
+     * Spawn a {@link FireBall} using {@link MainGame#spawnFireBall()} or {@link MainGame#spawnFireBall(FireBall)}.
+     */
     private void spawnFireBallsBasedOnY(){
         if (fireBalls != null && fireBalls.size != 0) {
             FireBall lastFireball = fireBalls.get(fireBalls.size - 1);
@@ -417,6 +485,9 @@ public class MainGame implements Screen {
         }
     }
 
+    /**
+     * Spawn a {@link FireBall} on a random point of x axis.
+     */
     private void spawnFireBall(){
         int x = MathUtils.random(FireBall.TEXTURE_WIDTH, BlueSky.GAME_WIDTH - FireBall.TEXTURE_WIDTH);
         int y = BlueSky.GAME_HEIGHT;
@@ -424,6 +495,10 @@ public class MainGame implements Screen {
         fireBalls.add(fireBall);
     }
 
+    /**
+     * Spawn a {@link FireBall} depending on how far has previous {@link FireBall} traveled on y axis.
+     * @param lastFireball requires {@link FireBall}
+     */
     private void spawnFireBall(FireBall lastFireball){
         int x;
         int y;
@@ -439,6 +514,9 @@ public class MainGame implements Screen {
         fireBalls.add(fireBall);
     }
 
+    /**
+     * Spawn a {@link FireBall} depending on {@link Player} location on x axis.
+     */
     private void spawnDirectedFireBall(){
         if (directedFireball == null){
             if (globalTime - directedFireBallStartTime > TimeUtils.millisToNanos(2000)){
@@ -451,12 +529,19 @@ public class MainGame implements Screen {
     }
 
     // Game states
+
+    /**
+     * All game state checks are located here
+     */
     private void checkGameState(){
         checkGameWon();
         checkGameOver();
         checkGamePause();
     }
 
+    /**
+     * Check if {@link Player} has won by collecting 999990 points.
+     */
     private void checkGameWon(){
         if (player.getScore() >= 999990){
             myLog.info("Game Won");
@@ -464,6 +549,9 @@ public class MainGame implements Screen {
         }
     }
 
+    /**
+     * Check if {@link Player} has lost by loosing all {@link Player#life}.
+     */
     private void checkGameOver(){
         if (player.getLife() <= 0){
             myLog.info("Game Over");
@@ -473,6 +561,9 @@ public class MainGame implements Screen {
         }
     }
 
+    /**
+     * Check if game entered pause {@link MainGame#gameState} by user pressing escape key.
+     */
     private void checkGamePause(){
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
             myLog.info("Escape button pressed on keyboard");
@@ -483,6 +574,10 @@ public class MainGame implements Screen {
     }
 
     // Game timers
+
+    /**
+     * Set all the game timers according to {@link MainGame#globalTime}.
+     */
     private void setTimers(){
         setGlobalTime();
         fireBallSpeedIncStartTime = globalTime;
@@ -490,6 +585,9 @@ public class MainGame implements Screen {
         starPickupStartTime = globalTime;
     }
 
+    /**
+     * Set {@link MainGame#globalTime} by subtracting time that game has spent in pause {@link MainGame#gameState}.
+     */
     private void setGlobalTime(){
         if (pauseTime != 0) {
             pauseDelta += TimeUtils.nanoTime() - pauseTime;

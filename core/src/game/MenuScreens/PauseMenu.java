@@ -2,6 +2,7 @@ package game.MenuScreens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -20,17 +21,28 @@ import game.SimpleLogger;
 /**
  * Created by eriks on 21/11/2016.
  */
+
+/**
+ * Pause menu, does not create a {@link Screen}, but just an overlay on top of {@link MainGame} screen.
+ */
 public class PauseMenu {
     private OrthographicCamera camera;
     private Stage stage;
     private Skin skin;
     private static SimpleLogger myLog = SimpleLogger.getLogger();
 
+    /**
+     * Instantiation method, when it is called all assets are allocated in memory.
+     */
     public PauseMenu() {
         camera = new OrthographicCamera();
         createUi();
     }
 
+    /**
+     * Renders all the assets that are created by {@link PauseMenu#createUi} method.
+     * @param delta frame delta time, should contain main renderer delta
+     */
     public void render(float delta) {
         camera.update();
         stage.act(delta);
@@ -48,6 +60,9 @@ public class PauseMenu {
         }
     }
 
+    /**
+     * Loads all the assets for the menu and sets their position in the game world.
+     */
     private void createUi(){
         Table table;
 
@@ -94,6 +109,9 @@ public class PauseMenu {
         stage.addActor(table);
     }
 
+    /**
+     * Disposes of all the assets that are not taken care of by garbage collector.
+     */
     public void dispose(){
         stage.dispose();
         skin.dispose();

@@ -2,6 +2,7 @@ package game.MenuScreens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -22,14 +23,24 @@ import game.SimpleLogger;
 /**
  * Created by eriks on 23/11/2016.
  */
+
+/**
+ * Game Over menu, does not create a {@link Screen}, but just an overlay on top of {@link MainGame} screen.
+ */
 public class GameOverMenu {
     private final BlueSky myGame;
+
     private Player player;
     private OrthographicCamera camera;
     private Stage stage;
     private Skin skin;
     private static SimpleLogger myLog = SimpleLogger.getLogger();
 
+    /**
+     * Instantiation method, when it is called all assets are allocated in memory.
+     * @param g Instance of {@link BlueSky} class
+     * @param p instance of {@link Player} class
+     */
     public GameOverMenu(final BlueSky g, Player p) {
         myGame = g;
         player = p;
@@ -37,6 +48,10 @@ public class GameOverMenu {
         createUi();
     }
 
+    /**
+     * Renders all the assets that are created by {@link GameOverMenu#createUi()} method.
+     * @param delta frame delta time, should contain main renderer delta
+     */
     public void render(float delta) {
         camera.update();
         stage.act(delta);
@@ -55,6 +70,9 @@ public class GameOverMenu {
         }
     }
 
+    /**
+     * Loads all the assets for the menu and sets their position in the game world.
+     */
     private void createUi(){
         Table table;
 
@@ -111,6 +129,9 @@ public class GameOverMenu {
         stage.addActor(table);
     }
 
+    /**
+     * Disposes of all the assets that are not taken care of by garbage collector.
+     */
     public void dispose(){
         stage.dispose();
         skin.dispose();

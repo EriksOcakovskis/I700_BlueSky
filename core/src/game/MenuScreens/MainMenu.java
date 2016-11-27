@@ -19,6 +19,10 @@ import game.SimpleLogger;
 /**
  * Created by eriks on 26/10/2016.
  */
+
+/**
+ * Implements {@link Screen}
+ */
 public class MainMenu implements Screen {
     private final BlueSky myGame;
     private OrthographicCamera camera;
@@ -27,6 +31,10 @@ public class MainMenu implements Screen {
 
     private static SimpleLogger myLog = SimpleLogger.getLogger();
 
+    /**
+     * Instantiation method, when it is called all assets are allocated in memory.
+     * @param g Instance of {@link BlueSky} class
+     */
     public MainMenu(final BlueSky g) {
         myGame = g;
         camera = new OrthographicCamera();
@@ -85,6 +93,9 @@ public class MainMenu implements Screen {
         skin.dispose();
     }
 
+    /**
+     * Loads all the assets for the menu and sets their position in the game world.
+     */
     private void createUi(){
         myLog.info("Creating Main menu");
         Table table;
