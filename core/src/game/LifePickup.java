@@ -3,7 +3,7 @@ package game;
 /**
  * Created by eriks on 20/11/2016.
  */
-class LifePickup extends BasicActor {
+class LifePickup extends BaseActor {
     private boolean quarterLifeReached;
 
     static final int width = BlueSky.GAME_WIDTH/10;

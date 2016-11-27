@@ -2,12 +2,11 @@ package game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.utils.TimeUtils;
 
 /**
  * Created by eriks on 13/11/2016.
  */
-public class Player extends BasicActor {
+public class Player extends BaseActor {
     private int life;
     private long score;
     private long playerStarActiveTime;
