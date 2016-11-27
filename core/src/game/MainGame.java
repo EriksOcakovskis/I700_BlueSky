@@ -275,10 +275,11 @@ public class MainGame implements Screen {
             if (player.isStarPickupActive()){
                 long timeDif = globalTime - player.getPlayerStarActiveTime();
 
-                if (timeDif > TimeUtils.millisToNanos(5000)){
+                player.setScore(100);
+
+                if (timeDif > TimeUtils.millisToNanos(5600)){
                     player.setStarPickupActive(false);
                 }
-                player.setScore(100);
             } else {
                 player.setScore();
             }
@@ -449,7 +450,7 @@ public class MainGame implements Screen {
         }
     }
 
-    //Game states
+    // Game states
     private void checkGameState(){
         checkGameWon();
         checkGameOver();
@@ -481,6 +482,7 @@ public class MainGame implements Screen {
         }
     }
 
+    // Game timers
     private void setTimers(){
         setGlobalTime();
         fireBallSpeedIncStartTime = globalTime;
